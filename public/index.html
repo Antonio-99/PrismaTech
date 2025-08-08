@@ -4,14 +4,899 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrismaTech - Refacciones de Cómputo</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1e3a8a;
+            --primary-red: #dc2626;
+            --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary-blue);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-item i {
+            color: var(--primary-red);
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--primary-gradient);
+            padding: 2rem 0;
+            color: white;
+        }
+
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .search-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: var(--white);
+            color: var(--primary-blue);
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Categories */
+        .categories-section {
+            padding: 3rem 0;
+            background: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--gray-900);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+        }
+
+        .category-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-description {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        /* Products */
+        .products-section {
+            padding: 3rem 0;
+            background: var(--gray-50);
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .products-filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: var(--gray-100);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--gray-500);
+            margin-bottom: 1rem;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            min-height: 2.4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .product-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-brand, .product-sku {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .product-part-number {
+            background: var(--primary-blue);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .product-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+        }
+
+        .product-description {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 58, 138, 0.4);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        /* WhatsApp Float */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4), 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4), 0 0 0 10px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4), 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .footer-section p, .footer-section a {
+            color: var(--gray-300);
+            text-decoration: none;
+            line-height: 1.6;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--gray-700);
+            padding-top: 1rem;
+            text-align: center;
+            color: var(--gray-400);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .contact-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-input {
+                min-width: unset;
+            }
+
+            .products-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .products-filters {
+                justify-content: center;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Admin Button */
+        .admin-access {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .admin-btn {
+            background: var(--gray-700);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .admin-btn:hover {
+            opacity: 1;
+            background: var(--primary-blue);
+        }
+    </style>
 </head>
 <body>
-    <!-- Contenido del sitio público -->
-    <script src="js/utils.js"></script>
-    <script src="js/products.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Admin Access -->
+    <div class="admin-access">
+        <a href="admin.html" class="admin-btn">
+            <i class="fas fa-cog"></i> Admin
+        </a>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon">PT</div>
+                <span>PrismaTech</span>
+            </div>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>(238) 123-4567</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>info@prismatech.mx</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Teziutlán, Puebla</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <h1 class="search-title">Refacciones de Cómputo</h1>
+            <p class="search-subtitle">Encuentra la refacción que necesitas por nombre, SKU o número de parte</p>
+            <div class="search-box">
+                <input type="text" 
+                       class="search-input" 
+                       id="search-input"
+                       placeholder="Buscar por nombre, SKU, número de parte...">
+                <button class="search-btn" onclick="searchProducts()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title">Categorías de Productos</h2>
+            <div class="categories-grid" id="categories-grid">
+                <!-- Categories will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section class="products-section">
+        <div class="container">
+            <div class="products-header">
+                <h2 class="section-title" style="margin: 0;">Productos Disponibles</h2>
+                <div class="products-filters">
+                    <select class="filter-select" id="category-filter" onchange="filterProducts()">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                    <select class="filter-select" id="brand-filter" onchange="filterProducts()">
+                        <option value="">Todas las marcas</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="products-grid" id="products-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando productos...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/5212381234567" class="whatsapp-float" target="_blank" title="Contactar por WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>PrismaTech</h3>
+                    <p>Especialistas en refacciones de cómputo. Más de 10 años de experiencia brindando soluciones tecnológicas.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Contacto</h3>
+                    <p><i class="fas fa-phone"></i> (238) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> info@prismatech.mx</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Teziutlán, Puebla, México</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Horarios</h3>
+                    <p>Lunes a Viernes: 9:00 AM - 7:00 PM</p>
+                    <p>Sábados: 9:00 AM - 5:00 PM</p>
+                    <p>Domingos: Cerrado</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Síguenos</h3>
+                    <p>
+                        <a href="#"><i class="fab fa-facebook"></i> Facebook</a><br>
+                        <a href="#"><i class="fab fa-instagram"></i> Instagram</a><br>
+                        <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PrismaTech. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mock data - En producción vendría de la API
+        const mockCategories = [
+            {
+                id: 1,
+                name: "Pantallas",
+                description: "Displays LCD, LED, OLED",
+                icon: "fas fa-tv"
+            },
+            {
+                id: 2,
+                name: "Teclados",
+                description: "Teclados de reemplazo",
+                icon: "fas fa-keyboard"
+            },
+            {
+                id: 3,
+                name: "Baterías",
+                description: "Baterías para laptops",
+                icon: "fas fa-battery-three-quarters"
+            },
+            {
+                id: 4,
+                name: "Cargadores",
+                description: "Adaptadores de corriente",
+                icon: "fas fa-plug"
+            },
+            {
+                id: 5,
+                name: "Memorias",
+                description: "RAM DDR3, DDR4, DDR5",
+                icon: "fas fa-memory"
+            },
+            {
+                id: 6,
+                name: "Almacenamiento",
+                description: "SSD, HDD, M.2 NVMe",
+                icon: "fas fa-hdd"
+            }
+        ];
+
+        const mockProducts = [
+            {
+                id: 1,
+                name: "Display LCD 15.6\" HP Pavilion",
+                description: "Pantalla LCD de 15.6 pulgadas con resolución HD (1366x768) compatible con laptops HP Pavilion.",
+                price: 1890.00,
+                brand: "HP Compatible",
+                sku: "LCD-HP-156-001",
+                part_number: "HP-156-LCD-001",
+                category_id: 1,
+                icon: "fas fa-tv"
+            },
+            {
+                id: 2,
+                name: "Teclado Lenovo ThinkPad T440",
+                description: "Teclado de reemplazo para ThinkPad T440/T450 con distribución en español y retroiluminación.",
+                price: 650.00,
+                brand: "Lenovo",
+                sku: "KBD-LEN-T440-ES",
+                part_number: "LEN-T440-KB-ES",
+                category_id: 2,
+                icon: "fas fa-keyboard"
+            },
+            {
+                id: 3,
+                name: "Batería HP Pavilion dv6",
+                description: "Batería original HP de 4400mAh para Pavilion dv6. Tecnología Li-Ion con garantía.",
+                price: 980.00,
+                brand: "HP",
+                sku: "BAT-HP-DV6-4400",
+                part_number: "HP-DV6-BAT-4400",
+                category_id: 3,
+                icon: "fas fa-battery-three-quarters"
+            },
+            {
+                id: 4,
+                name: "Cargador Universal 65W",
+                description: "Cargador universal de 65W con 8 conectores diferentes. Compatible con múltiples marcas.",
+                price: 350.00,
+                brand: "Universal",
+                sku: "CHG-UNIV-65W",
+                part_number: "UNIV-CHG-65W-MULTI",
+                category_id: 4,
+                icon: "fas fa-plug"
+            },
+            {
+                id: 5,
+                name: "Memoria RAM DDR4 8GB",
+                description: "Módulo de memoria RAM DDR4 de 8GB a 2400MHz formato SO-DIMM.",
+                price: 1250.00,
+                brand: "Kingston",
+                sku: "RAM-KING-8GB-DDR4",
+                part_number: "KST-8GB-DDR4-2400",
+                category_id: 5,
+                icon: "fas fa-memory"
+            },
+            {
+                id: 6,
+                name: "SSD M.2 NVMe 250GB",
+                description: "Disco sólido SSD M.2 NVMe de 250GB. Velocidad de lectura hasta 3,500 MB/s.",
+                price: 950.00,
+                brand: "Western Digital",
+                sku: "SSD-WD-250GB-M2",
+                part_number: "WD-250GB-M2-NVMe",
+                category_id: 6,
+                icon: "fas fa-hdd"
+            }
+        ];
+
+        let filteredProducts = [...mockProducts];
+
+        // Load categories
+        function loadCategories() {
+            const grid = document.getElementById('categories-grid');
+            const categoryFilter = document.getElementById('category-filter');
+            
+            grid.innerHTML = mockCategories.map(category => `
+                <div class="category-card" onclick="filterByCategory(${category.id})">
+                    <div class="category-icon">
+                        <i class="${category.icon}"></i>
+                    </div>
+                    <h3 class="category-name">${category.name}</h3>
+                    <p class="category-description">${category.description}</p>
+                </div>
+            `).join('');
+
+            // Populate category filter
+            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' +
+                mockCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+        }
+
+        // Load products
+        function loadProducts() {
+            const grid = document.getElementById('products-grid');
+            const brandFilter = document.getElementById('brand-filter');
+            
+            // Get unique brands
+            const brands = [...new Set(mockProducts.map(p => p.brand))];
+            brandFilter.innerHTML = '<option value="">Todas las marcas</option>' +
+                brands.map(brand => `<option value="${brand}">${brand}</option>`).join('');
+            
+            renderProducts(filteredProducts);
+        }
+
+        // Render products
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+            
+            if (products.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron productos</h3>
+                        <p style="color: var(--gray-500);">Intenta cambiar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="${product.icon}"></i>
+                    </div>
+                    <h3 class="product-title">${product.name}</h3>
+                    <div class="product-meta">
+                        <span class="product-brand">${product.brand}</span>
+                        <span class="product-sku">SKU: ${product.sku}</span>
+                        ${product.part_number ? `<span class="product-part-number">P/N: ${product.part_number}</span>` : ''}
+                    </div>
+                    <div class="product-price">$${product.price.toLocaleString()}</div>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-actions">
+                        <a href="#" class="btn btn-primary" onclick="requestQuote(${product.id})">
+                            <i class="fas fa-file-invoice"></i> Cotizar
+                        </a>
+                        <a href="https://wa.me/5212381234567?text=Hola,%20me%20interesa%20el%20producto%20${encodeURIComponent(product.name)}%20(${product.sku})" 
+                           class="btn btn-whatsapp" target="_blank">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search products
+        function searchProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            filteredProducts = mockProducts.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.description.toLowerCase().includes(searchTerm) ||
+                product.sku.toLowerCase().includes(searchTerm) ||
+                product.part_number.toLowerCase().includes(searchTerm) ||
+                product.brand.toLowerCase().includes(searchTerm)
+            );
+            
+            renderProducts(filteredProducts);
+        }
+
+        // Filter products
+        function filterProducts() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const brandFilter = document.getElementById('brand-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            filteredProducts = mockProducts.filter(product => {
+                const matchesCategory = !categoryFilter || product.category_id == categoryFilter;
+                const matchesBrand = !brandFilter || product.brand === brandFilter;
+                const matchesSearch = !searchTerm || 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm) ||
+                    product.sku.toLowerCase().includes(searchTerm) ||
+                    product.part_number.toLowerCase().includes(searchTerm) ||
+                    product.brand.toLowerCase().includes(searchTerm);
+                
+                return matchesCategory && matchesBrand && matchesSearch;
+            });
+            
+            renderProducts(filteredProducts);
+        }
+
+        // Filter by category
+        function filterByCategory(categoryId) {
+            document.getElementById('category-filter').value = categoryId;
+            filterProducts();
+            document.querySelector('.products-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Request quote
+        function requestQuote(productId) {
+            const product = mockProducts.find(p => p.id === productId);
+            if (product) {
+                const message = `Hola, me interesa solicitar una cotización para:\n\nProducto: ${product.name}\nSKU: ${product.sku}\nPrecio de referencia: $${product.price.toLocaleString()}\n\n¿Podrían proporcionarme más información?`;
+                window.open(`https://wa.me/5212381234567?text=${encodeURIComponent(message)}`, '_blank');
+            }
+        }
+
+        // Search on Enter key
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+        // Real-time search
+        document.getElementById('search-input').addEventListener('input', function() {
+            setTimeout(searchProducts, 300);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadProducts();
+        });
+    </script>
 </body>
 </html>

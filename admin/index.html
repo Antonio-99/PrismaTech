@@ -3,19 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrismaTech - Panel Administrativo</title>
+    <title>Panel de Administración - PrismaTech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ============================================
-           PrismaTech Admin Panel Styles
-           ============================================ */
-        
         :root {
             --primary-blue: #1e3a8a;
             --primary-red: #dc2626;
             --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
-            --sidebar-width: 280px;
-            --header-height: 70px;
             --success: #10b981;
             --warning: #f59e0b;
             --error: #ef4444;
@@ -41,44 +35,34 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--gray-50);
             color: var(--gray-900);
-            overflow-x: hidden;
         }
 
-        /* ============================================
-           Layout Principal
-           ============================================ */
-        
+        /* Layout */
         .admin-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: 250px 1fr;
             min-height: 100vh;
         }
 
         /* Sidebar */
         .sidebar {
-            width: var(--sidebar-width);
             background: var(--white);
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             position: fixed;
+            width: 250px;
             height: 100vh;
-            left: 0;
-            top: 0;
-            z-index: 1000;
-            transition: var(--transition);
-        }
-
-        .sidebar.collapsed {
-            width: 80px;
+            overflow-y: auto;
         }
 
         .sidebar-header {
-            padding: 20px;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--gray-200);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
-        .logo {
+        .logo-icon {
             width: 40px;
             height: 40px;
             background: var(--primary-gradient);
@@ -88,32 +72,25 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 18px;
         }
 
         .logo-text {
-            font-size: 20px;
-            font-weight: 900;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--primary-blue);
-            transition: var(--transition);
-        }
-
-        .sidebar.collapsed .logo-text {
-            display: none;
         }
 
         .sidebar-nav {
-            padding: 20px 0;
+            padding: 1rem 0;
         }
 
         .nav-item {
             display: block;
-            padding: 15px 20px;
+            padding: 0.75rem 1.5rem;
             color: var(--gray-700);
             text-decoration: none;
             transition: var(--transition);
-            border-left: 4px solid transparent;
-            position: relative;
+            border-left: 3px solid transparent;
         }
 
         .nav-item:hover,
@@ -125,261 +102,77 @@
 
         .nav-item i {
             width: 20px;
-            margin-right: 15px;
-            text-align: center;
-        }
-
-        .sidebar.collapsed .nav-item span {
-            display: none;
+            margin-right: 10px;
         }
 
         /* Main Content */
         .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            transition: var(--transition);
+            margin-left: 250px;
+            padding: 2rem;
         }
 
-        .sidebar.collapsed ~ .main-content {
-            margin-left: 80px;
-        }
-
-        /* Header */
-        .main-header {
-            background: var(--white);
-            height: var(--header-height);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .page-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 30px;
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-
-        .header-left {
-            display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .toggle-sidebar {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--gray-700);
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .toggle-sidebar:hover {
-            background: var(--gray-100);
-        }
-
-        .breadcrumb {
-            color: var(--gray-500);
-            font-size: 14px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .notification-btn {
-            position: relative;
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--gray-700);
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .notification-btn:hover {
-            background: var(--gray-100);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: var(--error);
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 10px;
-            transition: var(--transition);
-        }
-
-        .user-menu:hover {
-            background: var(--gray-100);
-        }
-
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            background: var(--primary-gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Content Area */
-        .content-area {
-            padding: 30px;
-            min-height: calc(100vh - var(--header-height));
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .page-title {
-            font-size: 28px;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 30px;
             color: var(--gray-900);
         }
 
-        /* ============================================
-           Dashboard Cards
-           ============================================ */
-        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Cards and Components */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-        }
-
-        .stat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
+            background: var(--white);
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary-blue);
         }
-
-        .stat-icon.sales { background: linear-gradient(135deg, #10b981, #059669); }
-        .stat-icon.products { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .stat-icon.customers { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .stat-icon.revenue { background: linear-gradient(135deg, #f59e0b, #d97706); }
 
         .stat-value {
-            font-size: 32px;
+            font-size: 2rem;
             font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 5px;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: var(--gray-500);
-            font-size: 14px;
-            margin-bottom: 10px;
+            color: var(--gray-600);
+            font-size: 0.9rem;
         }
 
-        .stat-change {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .stat-change.positive {
-            color: var(--success);
-        }
-
-        .stat-change.negative {
-            color: var(--error);
-        }
-
-        /* ============================================
-           Tables
-           ============================================ */
-        
-        .data-table-container {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-
-        .table-header {
-            padding: 25px 30px;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .table-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--gray-900);
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 10px;
-        }
-
+        /* Buttons */
         .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
@@ -387,9 +180,6 @@
             cursor: pointer;
             transition: var(--transition);
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             font-size: 14px;
         }
 
@@ -404,233 +194,307 @@
         }
 
         .btn-secondary {
-            background: var(--gray-100);
+            background: var(--gray-200);
             color: var(--gray-700);
         }
 
         .btn-secondary:hover {
-            background: var(--gray-200);
+            background: var(--gray-300);
         }
 
-        .data-table {
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .data-table th,
-        .data-table td {
-            padding: 15px 20px;
+        .table th,
+        .table td {
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid var(--gray-100);
         }
 
-        .data-table th {
+        .table th {
             background: var(--gray-50);
             font-weight: 600;
             color: var(--gray-700);
-            font-size: 14px;
         }
 
-        .data-table tr:hover {
+        .table tr:hover {
             background: var(--gray-50);
         }
 
-        /* ============================================
-           Charts Container
-           ============================================ */
-        
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--gray-900);
-        }
-
-        .chart-placeholder {
-            height: 300px;
-            background: var(--gray-50);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray-500);
-            border: 2px dashed var(--gray-300);
-        }
-
-        /* ============================================
-           Status Badges
-           ============================================ */
-        
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-badge.active {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .status-badge.inactive {
-            background: rgba(107, 114, 128, 0.1);
-            color: var(--gray-500);
-        }
-
-        .status-badge.low-stock {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .status-badge.out-stock {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-        }
-
-        /* ============================================
-           Loading States
-           ============================================ */
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--gray-300);
-            border-top: 2px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-overlay {
+        /* Modal */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
         }
 
-        .loading-content {
-            text-align: center;
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
-        .loading-spinner-large {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--gray-300);
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+        .modal {
+            background: var(--white);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        /* ============================================
-           Responsive Design
-           ============================================ */
-        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-500);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Filters and Search */
+        .filters-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 40px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+        }
+
+        /* Status badges */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
+            .admin-container {
+                grid-template-columns: 1fr;
             }
-            
+
+            .sidebar {
+                transform: translateX(-250px);
+                transition: transform 0.3s ease;
+            }
+
             .sidebar.mobile-open {
                 transform: translateX(0);
             }
-            
+
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
             }
-            
+
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .charts-grid {
+
+            .form-row {
                 grid-template-columns: 1fr;
             }
-            
-            .content-area {
-                padding: 20px;
+
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: unset;
             }
         }
 
-        /* ============================================
-           Page Specific Styles
-           ============================================ */
-        
+        /* Page specific styles */
         .page-content {
             display: none;
         }
-        
+
         .page-content.active {
             display: block;
         }
 
-        .quick-actions {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .action-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: var(--transition);
-            flex: 1;
-            min-width: 200px;
+        .empty-state {
             text-align: center;
-        }
-
-        .action-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .action-icon {
-            font-size: 36px;
-            color: var(--primary-blue);
-            margin-bottom: 10px;
-        }
-
-        .action-title {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--gray-900);
-        }
-
-        .action-desc {
-            font-size: 14px;
+            padding: 3rem;
             color: var(--gray-500);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray-300);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -639,674 +503,817 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">PT</div>
-                <div class="logo-text">PrismaTech</div>
+                <div class="logo-icon">PT</div>
+                <div class="logo-text">Admin Panel</div>
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-page="dashboard">
                     <i class="fas fa-chart-line"></i>
-                    <span>Dashboard</span>
+                    Dashboard
                 </a>
                 <a href="#" class="nav-item" data-page="products">
                     <i class="fas fa-box"></i>
-                    <span>Productos</span>
+                    Productos
+                </a>
+                <a href="#" class="nav-item" data-page="categories">
+                    <i class="fas fa-tags"></i>
+                    Categorías
                 </a>
                 <a href="#" class="nav-item" data-page="sales">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Ventas</span>
-                </a>
-                <a href="#" class="nav-item" data-page="inventory">
-                    <i class="fas fa-warehouse"></i>
-                    <span>Inventario</span>
-                </a>
-                <a href="#" class="nav-item" data-page="customers">
-                    <i class="fas fa-users"></i>
-                    <span>Clientes</span>
-                </a>
-                <a href="#" class="nav-item" data-page="reports">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Reportes</span>
+                    Ventas/Cotizaciones
                 </a>
                 <a href="#" class="nav-item" data-page="settings">
                     <i class="fas fa-cog"></i>
-                    <span>Configuración</span>
+                    Configuración
+                </a>
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-globe"></i>
+                    Ver Sitio Web
                 </a>
             </nav>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="main-header">
-                <div class="header-left">
-                    <button class="toggle-sidebar" id="toggleSidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div class="breadcrumb" id="breadcrumb">
-                        Dashboard
-                    </div>
-                </div>
-                <div class="header-right">
-                    <button class="notification-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    <div class="user-menu" id="userMenu">
-                        <div class="user-avatar">A</div>
-                        <div>
-                            <div style="font-weight: 600; font-size: 14px;">Admin</div>
-                            <div style="font-size: 12px; color: var(--gray-500);">Administrador</div>
-                        </div>
-                        <i class="fas fa-chevron-down" style="margin-left: 10px;"></i>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Content Area -->
-            <div class="content-area">
-                <!-- Dashboard Page -->
-                <div class="page-content active" id="dashboard-page">
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="dashboard-page">
+                <div class="page-header">
                     <h1 class="page-title">Dashboard</h1>
-                    
-                    <!-- Stats Grid -->
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon sales">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </div>
-                            </div>
-                            <div class="stat-value" id="totalSales">0</div>
-                            <div class="stat-label">Ventas Hoy</div>
-                            <div class="stat-change positive">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+12.5%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon revenue">
-                                    <i class="fas fa-dollar-sign"></i>
-                                </div>
-                            </div>
-                            <div class="stat-value" id="totalRevenue">$0</div>
-                            <div class="stat-label">Ingresos Hoy</div>
-                            <div class="stat-change positive">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+8.2%</span>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon products">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                            </div>
-                            <div class="stat-value" id="totalProducts">0</div>
-                            <div class="stat-label">Productos</div>
-                            <div class="stat-change positive">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+3</span>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon customers">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                            </div>
-                            <div class="stat-value" id="totalCustomers">0</div>
-                            <div class="stat-label">Clientes</div>
-                            <div class="stat-change positive">
-                                <i class="fas fa-arrow-up"></i>
-                                <span>+5</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charts -->
-                    <div class="charts-grid">
-                        <div class="chart-container">
-                            <h3 class="chart-title">Ventas de los Últimos 30 Días</h3>
-                            <div class="chart-placeholder">
-                                <div>
-                                    <i class="fas fa-chart-line" style="font-size: 48px; margin-bottom: 10px;"></i>
-                                    <div>Gráfico de ventas aquí</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-container">
-                            <h3 class="chart-title">Productos Más Vendidos</h3>
-                            <div class="chart-placeholder">
-                                <div>
-                                    <i class="fas fa-chart-pie" style="font-size: 48px; margin-bottom: 10px;"></i>
-                                    <div>Gráfico de productos aquí</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Sales Table -->
-                    <div class="data-table-container">
-                        <div class="table-header">
-                            <h3 class="table-title">Ventas Recientes</h3>
-                            <div class="table-actions">
-                                <a href="#" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i>
-                                    Nueva Venta
-                                </a>
-                            </div>
-                        </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Venta #</th>
-                                    <th>Cliente</th>
-                                    <th>Fecha</th>
-                                    <th>Total</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentSalesTable">
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 40px;">
-                                        <div class="loading-spinner"></div>
-                                        <div style="margin-top: 10px;">Cargando ventas...</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="header-actions">
+                        <span class="text-muted">Último acceso: Hoy</span>
                     </div>
                 </div>
 
-                <!-- Products Page -->
-                <div class="page-content" id="products-page">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-products">0</div>
+                        <div class="stat-label">Productos Publicados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-categories">0</div>
+                        <div class="stat-label">Categorías</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-sales">0</div>
+                        <div class="stat-label">Cotizaciones</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">$0</div>
+                        <div class="stat-label">Ventas del Mes</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Accesos Rápidos</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="showPage('products')">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                        <button class="btn btn-secondary" onclick="showPage('categories')">
+                            <i class="fas fa-tags"></i> Gestionar Categorías
+                        </button>
+                        <button class="btn btn-secondary" onclick="showPage('sales')">
+                            <i class="fas fa-file-invoice"></i> Nueva Cotización
+                        </button>
+                        <a href="index.html" class="btn btn-secondary">
+                            <i class="fas fa-external-link-alt"></i> Ver Sitio Web
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Page -->
+            <div class="page-content" id="products-page">
+                <div class="page-header">
                     <h1 class="page-title">Gestión de Productos</h1>
-                    
-                    <div class="quick-actions">
-                        <div class="action-card" onclick="showAddProductModal()">
-                            <div class="action-icon"><i class="fas fa-plus"></i></div>
-                            <div class="action-title">Agregar Producto</div>
-                            <div class="action-desc">Nuevo producto al inventario</div>
-                        </div>
-                        <div class="action-card" onclick="showBulkImport()">
-                            <div class="action-icon"><i class="fas fa-upload"></i></div>
-                            <div class="action-title">Importar Masivo</div>
-                            <div class="action-desc">Cargar múltiples productos</div>
-                        </div>
-                        <div class="action-card" onclick="showLowStockReport()">
-                            <div class="action-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                            <div class="action-title">Stock Bajo</div>
-                            <div class="action-desc">Productos con poco stock</div>
-                        </div>
-                    </div>
-
-                    <div class="data-table-container">
-                        <div class="table-header">
-                            <h3 class="table-title">Lista de Productos</h3>
-                            <div class="table-actions">
-                                <input type="text" id="productSearch" placeholder="Buscar productos..." 
-                                       style="padding: 10px; border: 1px solid var(--gray-300); border-radius: 8px; margin-right: 10px;">
-                                <button class="btn btn-secondary" onclick="refreshProducts()">
-                                    <i class="fas fa-sync"></i>
-                                    Actualizar
-                                </button>
-                            </div>
-                        </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>SKU</th>
-                                    <th>Categoría</th>
-                                    <th>Precio</th>
-                                    <th>Stock</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productsTable">
-                                <tr>
-                                    <td colspan="7" style="text-align: center; padding: 40px;">
-                                        <div class="loading-spinner"></div>
-                                        <div style="margin-top: 10px;">Cargando productos...</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="openProductModal()">
+                            <i class="fas fa-plus"></i> Nuevo Producto
+                        </button>
                     </div>
                 </div>
 
-                <!-- Sales Page -->
-                <div class="page-content" id="sales-page">
-                    <h1 class="page-title">Gestión de Ventas</h1>
-                    
-                    <div class="quick-actions">
-                        <div class="action-card" onclick="showNewSaleModal()">
-                            <div class="action-icon"><i class="fas fa-cash-register"></i></div>
-                            <div class="action-title">Nueva Venta</div>
-                            <div class="action-desc">Registrar venta</div>
-                        </div>
-                        <div class="action-card" onclick="showQuoteModal()">
-                            <div class="action-icon"><i class="fas fa-file-invoice"></i></div>
-                            <div class="action-title">Cotización</div>
-                            <div class="action-desc">Crear cotización</div>
-                        </div>
-                        <div class="action-card" onclick="showSalesReport()">
-                            <div class="action-icon"><i class="fas fa-chart-line"></i></div>
-                            <div class="action-title">Reporte de Ventas</div>
-                            <div class="action-desc">Análisis de ventas</div>
-                        </div>
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Buscar productos..." id="products-search">
                     </div>
+                    <select class="form-control" style="width: auto;" id="products-category-filter">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
 
-                    <div class="data-table-container">
-                        <div class="table-header">
-                            <h3 class="table-title">Historial de Ventas</h3>
-                            <div class="table-actions">
-                                <select id="salesPeriod" style="padding: 10px; border: 1px solid var(--gray-300); border-radius: 8px; margin-right: 10px;">
-                                    <option value="today">Hoy</option>
-                                    <option value="this_week">Esta Semana</option>
-                                    <option value="this_month">Este Mes</option>
-                                    <option value="all">Todas</option>
-                                </select>
-                                <button class="btn btn-secondary" onclick="refreshSales()">
-                                    <i class="fas fa-sync"></i>
-                                    Actualizar
-                                </button>
-                            </div>
-                        </div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Venta #</th>
-                                    <th>Cliente</th>
-                                    <th>Fecha</th>
-                                    <th>Items</th>
-                                    <th>Total</th>
-                                    <th>Método Pago</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="salesTable">
-                                <tr>
-                                    <td colspan="8" style="text-align: center; padding: 40px;">
-                                        <div class="loading-spinner"></div>
-                                        <div style="margin-top: 10px;">Cargando ventas...</div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Lista de Productos</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>SKU</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            <!-- Products will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Categories Page -->
+            <div class="page-content" id="categories-page">
+                <div class="page-header">
+                    <h1 class="page-title">Gestión de Categorías</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="openCategoryModal()">
+                            <i class="fas fa-plus"></i> Nueva Categoría
+                        </button>
                     </div>
                 </div>
 
-                <!-- Other pages will be similar structure -->
-                <div class="page-content" id="inventory-page">
-                    <h1 class="page-title">Gestión de Inventario</h1>
-                    <p>Contenido de inventario aquí...</p>
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Lista de Categorías</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Productos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table">
+                            <!-- Categories will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sales Page -->
+            <div class="page-content" id="sales-page">
+                <div class="page-header">
+                    <h1 class="page-title">Ventas y Cotizaciones</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="openSaleModal()">
+                            <i class="fas fa-plus"></i> Nueva Venta
+                        </button>
+                    </div>
                 </div>
 
-                <div class="page-content" id="customers-page">
-                    <h1 class="page-title">Gestión de Clientes</h1>
-                    <p>Contenido de clientes aquí...</p>
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Registro de Ventas</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-table">
+                            <!-- Sales will be loaded here -->
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <div class="page-content" id="reports-page">
-                    <h1 class="page-title">Reportes</h1>
-                    <p>Contenido de reportes aquí...</p>
-                </div>
-
-                <div class="page-content" id="settings-page">
+            <!-- Settings Page -->
+            <div class="page-content" id="settings-page">
+                <div class="page-header">
                     <h1 class="page-title">Configuración</h1>
-                    <p>Contenido de configuración aquí...</p>
+                </div>
+
+                <div class="card">
+                    <h3>Información de la Empresa</h3>
+                    <form id="company-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de la Empresa</label>
+                                <input type="text" class="form-control" value="PrismaTech">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" value="(238) 123-4567">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="info@prismatech.mx">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp</label>
+                                <input type="text" class="form-control" value="5212381234567">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" class="form-control" value="Teziutlán, Puebla, México">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </form>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-        <div class="loading-content">
-            <div class="loading-spinner-large"></div>
-            <div>Cargando...</div>
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="product-modal-title">Nuevo Producto</h3>
+                <button class="modal-close" onclick="closeModal('product-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <input type="hidden" id="product-id">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Producto *</label>
+                        <input type="text" class="form-control" id="product-name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Categoría *</label>
+                            <select class="form-control" id="product-category" required>
+                                <option value="">Seleccionar categoría</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="product-brand">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">SKU *</label>
+                            <input type="text" class="form-control" id="product-sku" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Número de Parte</label>
+                            <input type="text" class="form-control" id="product-part-number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Precio *</label>
+                        <input type="number" class="form-control" id="product-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="product-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Icono (Clase Font Awesome)</label>
+                        <input type="text" class="form-control" id="product-icon" placeholder="fas fa-laptop">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('product-modal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveProduct()">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal-overlay" id="category-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="category-modal-title">Nueva Categoría</h3>
+                <button class="modal-close" onclick="closeModal('category-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="category-form">
+                    <input type="hidden" id="category-id">
+                    <div class="form-group">
+                        <label class="form-label">Nombre de la Categoría *</label>
+                        <input type="text" class="form-control" id="category-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="category-description">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Icono (Clase Font Awesome)</label>
+                        <input type="text" class="form-control" id="category-icon" placeholder="fas fa-laptop">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('category-modal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveCategory()">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div class="modal-overlay" id="sale-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Venta/Cotización</h3>
+                <button class="modal-close" onclick="closeModal('sale-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="sale-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cliente *</label>
+                            <input type="text" class="form-control" id="sale-customer" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="sale-phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Producto *</label>
+                        <select class="form-control" id="sale-product" required>
+                            <option value="">Seleccionar producto</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cantidad *</label>
+                            <input type="number" class="form-control" id="sale-quantity" value="1" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Precio Unitario *</label>
+                            <input type="number" class="form-control" id="sale-price" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Estado</label>
+                        <select class="form-control" id="sale-status">
+                            <option value="cotizacion">Cotización</option>
+                            <option value="vendido">Vendido</option>
+                            <option value="entregado">Entregado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notas</label>
+                        <textarea class="form-control" id="sale-notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('sale-modal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSale()">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // PrismaTech Admin Panel JavaScript
-        // ============================================
+        // Data management (en producción vendría de una base de datos)
+        let products = JSON.parse(localStorage.getItem('admin_products')) || [];
+        let categories = JSON.parse(localStorage.getItem('admin_categories')) || [
+            { id: 1, name: "Pantallas", description: "Displays LCD, LED, OLED", icon: "fas fa-tv" },
+            { id: 2, name: "Teclados", description: "Teclados de reemplazo", icon: "fas fa-keyboard" },
+            { id: 3, name: "Baterías", description: "Baterías para laptops", icon: "fas fa-battery-three-quarters" },
+            { id: 4, name: "Cargadores", description: "Adaptadores de corriente", icon: "fas fa-plug" },
+            { id: 5, name: "Memorias", description: "RAM DDR3, DDR4, DDR5", icon: "fas fa-memory" },
+            { id: 6, name: "Almacenamiento", description: "SSD, HDD, M.2 NVMe", icon: "fas fa-hdd" }
+        ];
+        let sales = JSON.parse(localStorage.getItem('admin_sales')) || [];
 
-        class AdminPanel {
-            constructor() {
-                this.apiUrl = '/api';
-                this.token = localStorage.getItem('admin_token');
-                this.currentPage = 'dashboard';
-                this.init();
+        // Navigation
+        function showPage(pageId) {
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+
+            // Show page content
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${pageId}-page`).classList.add('active');
+
+            // Load page data
+            switch(pageId) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'categories':
+                    loadCategories();
+                    break;
+                case 'sales':
+                    loadSales();
+                    break;
             }
+        }
 
-            init() {
-                this.setupEventListeners();
-                this.loadDashboardData();
-                this.checkAuth();
-            }
+        // Dashboard
+        function loadDashboard() {
+            document.getElementById('total-products').textContent = products.length;
+            document.getElementById('total-categories').textContent = categories.length;
+            document.getElementById('total-sales').textContent = sales.length;
+        }
 
-            setupEventListeners() {
-                // Sidebar toggle
-                document.getElementById('toggleSidebar').addEventListener('click', () => {
-                    document.getElementById('sidebar').classList.toggle('collapsed');
-                });
+        // Products Management
+        function loadProducts() {
+            const tbody = document.getElementById('products-table');
+            const categoryFilter = document.getElementById('products-category-filter');
+            
+            // Load category filter
+            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' +
+                categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
 
-                // Navigation
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const page = e.currentTarget.dataset.page;
-                        this.showPage(page);
-                    });
-                });
+            renderProducts();
+        }
 
-                // Search functionality
-                const productSearch = document.getElementById('productSearch');
-                if (productSearch) {
-                    productSearch.addEventListener('input', (e) => {
-                        this.searchProducts(e.target.value);
-                    });
-                }
+        function renderProducts() {
+            const tbody = document.getElementById('products-table');
+            const searchTerm = document.getElementById('products-search').value.toLowerCase();
+            const categoryFilter = document.getElementById('products-category-filter').value;
 
-                // Sales period filter
-                const salesPeriod = document.getElementById('salesPeriod');
-                if (salesPeriod) {
-                    salesPeriod.addEventListener('change', (e) => {
-                        this.filterSales(e.target.value);
-                    });
-                }
-            }
+            let filteredProducts = products.filter(product => {
+                const matchesSearch = !searchTerm || 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.sku.toLowerCase().includes(searchTerm) ||
+                    (product.part_number && product.part_number.toLowerCase().includes(searchTerm));
+                const matchesCategory = !categoryFilter || product.category_id == categoryFilter;
+                return matchesSearch && matchesCategory;
+            });
 
-            showPage(pageName) {
-                // Update navigation
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
-
-                // Update breadcrumb
-                document.getElementById('breadcrumb').textContent = this.getPageTitle(pageName);
-
-                // Show page content
-                document.querySelectorAll('.page-content').forEach(page => {
-                    page.classList.remove('active');
-                });
-                document.getElementById(`${pageName}-page`).classList.add('active');
-
-                this.currentPage = pageName;
-
-                // Load page-specific data
-                this.loadPageData(pageName);
-            }
-
-            getPageTitle(pageName) {
-                const titles = {
-                    dashboard: 'Dashboard',
-                    products: 'Productos',
-                    sales: 'Ventas',
-                    inventory: 'Inventario',
-                    customers: 'Clientes',
-                    reports: 'Reportes',
-                    settings: 'Configuración'
-                };
-                return titles[pageName] || 'Dashboard';
-            }
-
-            loadPageData(pageName) {
-                switch (pageName) {
-                    case 'dashboard':
-                        this.loadDashboardData();
-                        break;
-                    case 'products':
-                        this.loadProducts();
-                        break;
-                    case 'sales':
-                        this.loadSales();
-                        break;
-                    // Add other cases as needed
-                }
-            }
-
-            async loadDashboardData() {
-                try {
-                    this.showLoading();
-
-                    // Load stats
-                    const statsResponse = await this.apiCall('/sales/get.php?stats_only=1');
-                    if (statsResponse.success) {
-                        this.updateDashboardStats(statsResponse.data);
-                    }
-
-                    // Load recent sales
-                    const salesResponse = await this.apiCall('/sales/get.php?limit=5');
-                    if (salesResponse.success) {
-                        this.updateRecentSalesTable(salesResponse.data.data);
-                    }
-
-                    this.hideLoading();
-                } catch (error) {
-                    console.error('Error loading dashboard:', error);
-                    this.hideLoading();
-                }
-            }
-
-            async loadProducts() {
-                try {
-                    const response = await this.apiCall('/products/get.php?limit=50');
-                    if (response.success) {
-                        this.updateProductsTable(response.data.data);
-                    }
-                } catch (error) {
-                    console.error('Error loading products:', error);
-                }
-            }
-
-            async loadSales() {
-                try {
-                    const response = await this.apiCall('/sales/get.php?limit=50');
-                    if (response.success) {
-                        this.updateSalesTable(response.data.data);
-                    }
-                } catch (error) {
-                    console.error('Error loading sales:', error);
-                }
-            }
-
-            updateDashboardStats(stats) {
-                // Update dashboard statistics
-                if (stats.periods) {
-                    document.getElementById('totalSales').textContent = stats.periods.today?.count || 0;
-                    document.getElementById('totalRevenue').textContent = 
-                        '$' + (stats.periods.today?.revenue || 0).toLocaleString();
-                }
-                
-                if (stats.general) {
-                    document.getElementById('totalProducts').textContent = stats.general.total_products || 0;
-                    document.getElementById('totalCustomers').textContent = stats.general.unique_customers || 0;
-                }
-            }
-
-            updateRecentSalesTable(sales) {
-                const tbody = document.getElementById('recentSalesTable');
-                if (!sales || sales.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No hay ventas recientes</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = sales.map(sale => `
+            if (filteredProducts.length === 0) {
+                tbody.innerHTML = `
                     <tr>
-                        <td><strong>${sale.sale_number}</strong></td>
-                        <td>${sale.customer_name}</td>
-                        <td>${new Date(sale.sale_date).toLocaleDateString()}</td>
-                        <td>$${sale.total.toLocaleString()}</td>
-                        <td><span class="status-badge active">${sale.sale_status_display}</span></td>
-                        <td>
-                            <button class="btn btn-secondary" onclick="admin.viewSale(${sale.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-box"></i>
+                            <div>No hay productos para mostrar</div>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                return;
             }
 
-            updateProductsTable(products) {
-                const tbody = document.getElementById('productsTable');
-                if (!products || products.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No hay productos</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = products.map(product => `
+            tbody.innerHTML = filteredProducts.map(product => {
+                const category = categories.find(c => c.id === product.category_id);
+                return `
                     <tr>
                         <td>
-                            <div style="font-weight: 600;">${product.name}</div>
-                            <div style="font-size: 12px; color: var(--gray-500);">${product.brand || 'Sin marca'}</div>
+                            <div><strong>${product.name}</strong></div>
+                            <small style="color: var(--gray-500);">${product.brand || ''}</small>
                         </td>
-                        <td><code>${product.sku}</code></td>
-                        <td>${product.category_name}</td>
+                        <td>${category ? category.name : 'Sin categoría'}</td>
                         <td>$${product.price.toLocaleString()}</td>
+                        <td><code>${product.sku}</code></td>
+                        <td><span class="badge badge-success">Activo</span></td>
                         <td>
-                            <span class="status-badge ${this.getStockStatus(product.stock, product.min_stock)}">
-                                ${product.stock}
-                            </span>
-                        </td>
-                        <td><span class="status-badge active">${product.status}</span></td>
-                        <td>
-                            <button class="btn btn-secondary" onclick="admin.editProduct(${product.id})">
+                            <button class="btn btn-sm btn-secondary" onclick="editProduct(${product.id})">
                                 <i class="fas fa-edit"></i>
                             </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
-            updateSalesTable(sales) {
-                const tbody = document.getElementById('salesTable');
-                if (!sales || sales.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No hay ventas</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = sales.map(sale => `
-                    <tr>
-                        <td><strong>${sale.sale_number}</strong></td>
-                        <td>${sale.customer_name}</td>
-                        <td>${new Date(sale.sale_date).toLocaleDateString()}</td>
-                        <td>${sale.total_items || 0}</td>
-                        <td>$${sale.total.toLocaleString()}</td>
-                        <td>${sale.payment_method_display}</td>
-                        <td><span class="status-badge active">${sale.sale_status_display}</span></td>
-                        <td>
-                            <button class="btn btn-secondary" onclick="admin.viewSale(${sale.id})">
-                                <i class="fas fa-eye"></i>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </td>
                     </tr>
-                `).join('');
-            }
+                `;
+            }).join('');
+        }
 
-            getStockStatus(stock, minStock) {
-                if (stock === 0) return 'out-stock';
-                if (stock <= minStock) return 'low-stock';
-                return 'active';
-            }
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('product-modal');
+            const form = document.getElementById('product-form');
+            const categorySelect = document.getElementById('product-category');
+            
+            // Load categories
+            categorySelect.innerHTML = '<option value="">Seleccionar categoría</option>' +
+                categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
 
-            async apiCall(endpoint, options = {}) {
-                const url = this.apiUrl + endpoint;
-                const defaultOptions = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.token}`
-                    }
-                };
-
-                const response = await fetch(url, { ...defaultOptions, ...options });
-                return await response.json();
-            }
-
-            showLoading() {
-                document.getElementById('loadingOverlay').style.display = 'flex';
-            }
-
-            hideLoading() {
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
-
-            checkAuth() {
-                if (!this.token) {
-                    // Redirect to login or show login modal
-                    console.log('No authentication token found');
+            if (productId) {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('product-modal-title').textContent = 'Editar Producto';
+                    document.getElementById('product-id').value = product.id;
+                    document.getElementById('product-name').value = product.name;
+                    document.getElementById('product-category').value = product.category_id;
+                    document.getElementById('product-brand').value = product.brand || '';
+                    document.getElementById('product-sku').value = product.sku;
+                    document.getElementById('product-part-number').value = product.part_number || '';
+                    document.getElementById('product-price').value = product.price;
+                    document.getElementById('product-description').value = product.description || '';
+                    document.getElementById('product-icon').value = product.icon || '';
                 }
+            } else {
+                document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
+                form.reset();
+                document.getElementById('product-id').value = '';
             }
 
-            // Utility methods for actions
-            viewSale(saleId) {
-                console.log('View sale:', saleId);
-                // Implement view sale logic
+            modal.classList.add('active');
+        }
+
+        function saveProduct() {
+            const id = document.getElementById('product-id').value;
+            const productData = {
+                name: document.getElementById('product-name').value,
+                category_id: parseInt(document.getElementById('product-category').value),
+                brand: document.getElementById('product-brand').value,
+                sku: document.getElementById('product-sku').value,
+                part_number: document.getElementById('product-part-number').value,
+                price: parseFloat(document.getElementById('product-price').value),
+                description: document.getElementById('product-description').value,
+                icon: document.getElementById('product-icon').value || 'fas fa-cube'
+            };
+
+            if (id) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id == id);
+                if (index !== -1) {
+                    products[index] = { ...products[index], ...productData };
+                }
+            } else {
+                // Create new product
+                productData.id = Date.now();
+                products.push(productData);
             }
 
-            editProduct(productId) {
-                console.log('Edit product:', productId);
-                // Implement edit product logic
-            }
+            localStorage.setItem('admin_products', JSON.stringify(products));
+            closeModal('product-modal');
+            renderProducts();
+            loadDashboard();
+        }
 
-            refreshProducts() {
-                this.loadProducts();
-            }
+        function editProduct(id) {
+            openProductModal(id);
+        }
 
-            refreshSales() {
-                this.loadSales();
-            }
-
-            searchProducts(query) {
-                // Implement product search
-                console.log('Search products:', query);
-            }
-
-            filterSales(period) {
-                // Implement sales filtering
-                console.log('Filter sales by period:', period);
+        function deleteProduct(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('admin_products', JSON.stringify(products));
+                renderProducts();
+                loadDashboard();
             }
         }
 
-        // Global functions for onclick handlers
-        function showAddProductModal() {
-            console.log('Show add product modal');
+        // Categories Management
+        function loadCategories() {
+            renderCategories();
         }
 
-        function showBulkImport() {
-            console.log('Show bulk import');
+        function renderCategories() {
+            const tbody = document.getElementById('categories-table');
+            
+            tbody.innerHTML = categories.map(category => {
+                const productCount = products.filter(p => p.category_id === category.id).length;
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="${category.icon}" style="color: var(--primary-blue);"></i>
+                                <strong>${category.name}</strong>
+                            </div>
+                        </td>
+                        <td>${category.description}</td>
+                        <td>${productCount} productos</td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editCategory(${category.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        function showLowStockReport() {
-            console.log('Show low stock report');
+        function openCategoryModal(categoryId = null) {
+            const modal = document.getElementById('category-modal');
+            const form = document.getElementById('category-form');
+            
+            if (categoryId) {
+                const category = categories.find(c => c.id === categoryId);
+                if (category) {
+                    document.getElementById('category-modal-title').textContent = 'Editar Categoría';
+                    document.getElementById('category-id').value = category.id;
+                    document.getElementById('category-name').value = category.name;
+                    document.getElementById('category-description').value = category.description;
+                    document.getElementById('category-icon').value = category.icon;
+                }
+            } else {
+                document.getElementById('category-modal-title').textContent = 'Nueva Categoría';
+                form.reset();
+                document.getElementById('category-id').value = '';
+            }
+
+            modal.classList.add('active');
         }
 
-        function showNewSaleModal() {
-            console.log('Show new sale modal');
+        function saveCategory() {
+            const id = document.getElementById('category-id').value;
+            const categoryData = {
+                name: document.getElementById('category-name').value,
+                description: document.getElementById('category-description').value,
+                icon: document.getElementById('category-icon').value || 'fas fa-tag'
+            };
+
+            if (id) {
+                const index = categories.findIndex(c => c.id == id);
+                if (index !== -1) {
+                    categories[index] = { ...categories[index], ...categoryData };
+                }
+            } else {
+                categoryData.id = Date.now();
+                categories.push(categoryData);
+            }
+
+            localStorage.setItem('admin_categories', JSON.stringify(categories));
+            closeModal('category-modal');
+            renderCategories();
+            loadDashboard();
         }
 
-        function showQuoteModal() {
-            console.log('Show quote modal');
+        function editCategory(id) {
+            openCategoryModal(id);
         }
 
-        function showSalesReport() {
-            console.log('Show sales report');
+        function deleteCategory(id) {
+            const productCount = products.filter(p => p.category_id === id).length;
+            if (productCount > 0) {
+                alert('No se puede eliminar esta categoría porque tiene productos asociados.');
+                return;
+            }
+            
+            if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+                categories = categories.filter(c => c.id !== id);
+                localStorage.setItem('admin_categories', JSON.stringify(categories));
+                renderCategories();
+                loadDashboard();
+            }
         }
 
-        // Initialize admin panel
-        const admin = new AdminPanel();
+        // Sales Management
+        function loadSales() {
+            renderSales();
+        }
+
+        function renderSales() {
+            const tbody = document.getElementById('sales-table');
+            
+            if (sales.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <div>No hay ventas registradas</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = sales.map(sale => {
+                const product = products.find(p => p.id === sale.product_id);
+                const statusClass = sale.status === 'vendido' ? 'badge-success' : 
+                                  sale.status === 'entregado' ? 'badge-success' : 'badge-warning';
+                
+                return `
+                    <tr>
+                        <td>${new Date(sale.date).toLocaleDateString()}</td>
+                        <td>
+                            <div><strong>${sale.customer}</strong></div>
+                            <small style="color: var(--gray-500);">${sale.phone || ''}</small>
+                        </td>
+                        <td>${product ? product.name : 'Producto eliminado'}</td>
+                        <td>${sale.quantity}</td>
+                        <td>$${(sale.price * sale.quantity).toLocaleString()}</td>
+                        <td><span class="badge ${statusClass}">${sale.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editSale(${sale.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteSale(${sale.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openSaleModal(saleId = null) {
+            const modal = document.getElementById('sale-modal');
+            const productSelect = document.getElementById('sale-product');
+            
+            // Load products
+            productSelect.innerHTML = '<option value="">Seleccionar producto</option>' +
+                products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} - $${p.price}</option>`).join('');
+
+            if (saleId) {
+                const sale = sales.find(s => s.id === saleId);
+                if (sale) {
+                    document.getElementById('sale-customer').value = sale.customer;
+                    document.getElementById('sale-phone').value = sale.phone || '';
+                    document.getElementById('sale-product').value = sale.product_id;
+                    document.getElementById('sale-quantity').value = sale.quantity;
+                    document.getElementById('sale-price').value = sale.price;
+                    document.getElementById('sale-status').value = sale.status;
+                    document.getElementById('sale-notes').value = sale.notes || '';
+                }
+            } else {
+                document.getElementById('sale-form').reset();
+                document.getElementById('sale-quantity').value = 1;
+            }
+
+            modal.classList.add('active');
+        }
+
+        function saveSale() {
+            const saleData = {
+                customer: document.getElementById('sale-customer').value,
+                phone: document.getElementById('sale-phone').value,
+                product_id: parseInt(document.getElementById('sale-product').value),
+                quantity: parseInt(document.getElementById('sale-quantity').value),
+                price: parseFloat(document.getElementById('sale-price').value),
+                status: document.getElementById('sale-status').value,
+                notes: document.getElementById('sale-notes').value,
+                date: new Date().toISOString()
+            };
+
+            saleData.id = Date.now();
+            sales.push(saleData);
+
+            localStorage.setItem('admin_sales', JSON.stringify(sales));
+            closeModal('sale-modal');
+            renderSales();
+            loadDashboard();
+        }
+
+        function deleteSale(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
+                sales = sales.filter(s => s.id !== id);
+                localStorage.setItem('admin_sales', JSON.stringify(sales));
+                renderSales();
+                loadDashboard();
+            }
+        }
+
+        // Modal management
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation
+            document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showPage(this.dataset.page);
+                });
+            });
+
+            // Search
+            document.getElementById('products-search').addEventListener('input', renderProducts);
+            document.getElementById('products-category-filter').addEventListener('change', renderProducts);
+
+            // Product price auto-fill
+            document.getElementById('sale-product').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.dataset.price) {
+                    document.getElementById('sale-price').value = selectedOption.dataset.price;
+                }
+            });
+
+            // Load initial data
+            loadDashboard();
+        });
+
+        // Click outside modal to close
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html>
