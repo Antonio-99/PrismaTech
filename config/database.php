@@ -6,9 +6,9 @@
  * ============================================
  */
 
-// Prevenir acceso directo
+// Definir constante de acceso PRIMERO
 if (!defined('PRISMATECH_ACCESS')) {
-    die('Acceso directo no permitido');
+    define('PRISMATECH_ACCESS', true);
 }
 
 /**
@@ -84,7 +84,7 @@ class DatabaseConfig {
 class Database {
     
     private static ?PDO $connection = null;
-    private static array $config;
+    private static array $config = [];
     
     /**
      * Obtener instancia de conexión (Singleton)
@@ -241,125 +241,6 @@ class Database {
             return false;
         }
     }
-    
-    /**
-     * Obtener información de la base de datos
-     */
-    public static function getDatabaseInfo(): array {
-        $connection = self::getConnection();
-        
-        return [
-            'server_version' => $connection->getAttribute(PDO::ATTR_SERVER_VERSION),
-            'client_version' => $connection->getAttribute(PDO::ATTR_CLIENT_VERSION),
-            'connection_status' => $connection->getAttribute(PDO::ATTR_CONNECTION_STATUS),
-            'server_info' => $connection->getAttribute(PDO::ATTR_SERVER_INFO),
-            'database_name' => self::$config['dbname'] ?? 'unknown',
-            'charset' => self::$config['charset'] ?? 'unknown'
-        ];
-    }
-    
-    /**
-     * Ejecutar múltiples queries (para migrations/seeds)
-     */
-    public static function executeMultiple(string $sqlFile): bool {
-        try {
-            if (!file_exists($sqlFile)) {
-                throw new Exception("Archivo SQL no encontrado: $sqlFile");
-            }
-            
-            $sql = file_get_contents($sqlFile);
-            $connection = self::getConnection();
-            
-            // Dividir por statements (básico)
-            $statements = array_filter(
-                array_map('trim', explode(';', $sql)),
-                function($stmt) {
-                    return !empty($stmt) && !str_starts_with($stmt, '--');
-                }
-            );
-            
-            $connection->beginTransaction();
-            
-            foreach ($statements as $statement) {
-                if (!empty(trim($statement))) {
-                    $connection->exec($statement);
-                }
-            }
-            
-            $connection->commit();
-            return true;
-            
-        } catch (Exception $e) {
-            if (isset($connection)) {
-                $connection->rollback();
-            }
-            error_log('[PrismaTech] Error ejecutando múltiples queries: ' . $e->getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Validar estructura de base de datos
-     */
-    public static function validateSchema(): array {
-        $requiredTables = [
-            'users', 'categories', 'products', 'customers', 
-            'sales', 'sale_items', 'inventory_movements', 
-            'suppliers', 'user_sessions', 'system_settings'
-        ];
-        
-        $results = [
-            'valid' => true,
-            'missing_tables' => [],
-            'existing_tables' => []
-        ];
-        
-        foreach ($requiredTables as $table) {
-            if (self::tableExists($table)) {
-                $results['existing_tables'][] = $table;
-            } else {
-                $results['missing_tables'][] = $table;
-                $results['valid'] = false;
-            }
-        }
-        
-        return $results;
-    }
-    
-    /**
-     * Backup básico de la base de datos
-     */
-    public static function createBackup(string $backupPath = null): string {
-        if ($backupPath === null) {
-            $backupPath = __DIR__ . '/../backups/';
-        }
-        
-        if (!is_dir($backupPath)) {
-            mkdir($backupPath, 0755, true);
-        }
-        
-        $filename = 'prismatech_backup_' . date('Y-m-d_H-i-s') . '.sql';
-        $fullPath = $backupPath . $filename;
-        
-        $config = self::getConfig();
-        $command = sprintf(
-            'mysqldump -h%s -P%d -u%s %s %s > %s',
-            $config['host'],
-            $config['port'],
-            $config['username'],
-            $config['password'] ? "-p{$config['password']}" : '',
-            $config['dbname'],
-            $fullPath
-        );
-        
-        exec($command, $output, $return_code);
-        
-        if ($return_code === 0 && file_exists($fullPath)) {
-            return $fullPath;
-        } else {
-            throw new Exception('Error creando backup de la base de datos');
-        }
-    }
 }
 
 /**
@@ -396,53 +277,4 @@ abstract class BaseModel {
         
         return Database::fetchAll($query, $params);
     }
-    
-    /**
-     * Crear nuevo registro
-     */
-    public static function create(array $data): int {
-        $fields = array_keys($data);
-        $placeholders = array_map(fn($field) => ":$field", $fields);
-        
-        $query = sprintf(
-            "INSERT INTO %s (%s) VALUES (%s)",
-            static::$table,
-            implode(', ', $fields),
-            implode(', ', $placeholders)
-        );
-        
-        Database::execute($query, $data);
-        return (int) Database::getLastInsertId();
-    }
-    
-    /**
-     * Actualizar registro
-     */
-    public static function update(int $id, array $data): bool {
-        $fields = array_keys($data);
-        $setClause = array_map(fn($field) => "$field = :$field", $fields);
-        
-        $query = sprintf(
-            "UPDATE %s SET %s WHERE %s = :id",
-            static::$table,
-            implode(', ', $setClause),
-            static::$primaryKey
-        );
-        
-        $data['id'] = $id;
-        $statement = Database::execute($query, $data);
-        return Database::getRowCount($statement) > 0;
-    }
-    
-    /**
-     * Eliminar registro
-     */
-    public static function delete(int $id): bool {
-        $query = "DELETE FROM " . static::$table . " WHERE " . static::$primaryKey . " = :id";
-        $statement = Database::execute($query, ['id' => $id]);
-        return Database::getRowCount($statement) > 0;
-    }
 }
-
-// Definir constante de acceso
-define('PRISMATECH_ACCESS', true);

@@ -1,10 +1,16 @@
-<?php
+
+    <?php
 /**
  * ============================================
  * PrismaTech API - Base Configuration
  * Configuración base para todos los endpoints
  * ============================================
  */
+
+// Definir constante de acceso ANTES de incluir database.php
+if (!defined('PRISMATECH_ACCESS')) {
+    define('PRISMATECH_ACCESS', true);
+}
 
 // Incluir configuración de base de datos
 require_once __DIR__ . '/../../config/database.php';
