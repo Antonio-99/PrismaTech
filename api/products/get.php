@@ -2,10 +2,15 @@
 /**
  * ============================================
  * PrismaTech API - Get Products
- * Endpoint para obtener productos
+ * Endpoint para obtener productos con búsqueda por número de parte
  * GET /api/products/get.php
  * ============================================
  */
+
+// Definir constante de acceso
+if (!defined('PRISMATECH_ACCESS')) {
+    define('PRISMATECH_ACCESS', true);
+}
 
 require_once __DIR__ . '/../config/api_base.php';
 
@@ -20,13 +25,15 @@ class ProductsGetAPI extends ApiBase {
      * Manejar request según método HTTP
      */
     private function handleRequest(): void {
-        switch ($this->method) {
-            case 'GET':
-                $this->getProducts();
-                break;
-                
-            default:
-                $this->sendError(405, 'Método no permitido');
+        // Verificar si se solicita un producto específico
+        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+            $this->getProductById((int)$_GET['id']);
+        } elseif (isset($_GET['slug']) && !empty($_GET['slug'])) {
+            $this->getProductBySlug($_GET['slug']);
+        } elseif (isset($_GET['part_number']) && !empty($_GET['part_number'])) {
+            $this->getProductByPartNumber($_GET['part_number']);
+        } else {
+            $this->getProducts();
         }
     }
     
@@ -39,7 +46,7 @@ class ProductsGetAPI extends ApiBase {
             $pagination = $this->getPaginationParams();
             
             // Obtener parámetros de ordenamiento
-            $allowed_sort_fields = ['id', 'name', 'price', 'stock', 'created_at', 'category_name'];
+            $allowed_sort_fields = ['id', 'name', 'price', 'stock', 'created_at', 'category_name', 'part_number'];
             $sort = $this->getSortParams($allowed_sort_fields);
             
             // Construir query base con JOIN para categoría
@@ -62,16 +69,25 @@ class ProductsGetAPI extends ApiBase {
                 $params['category_id'] = (int)$this->input['category_id'];
             }
             
-            // Filtro por búsqueda de texto
+            // BÚSQUEDA MEJORADA: Incluye número de parte
             if (!empty($this->input['search'])) {
                 $search_term = '%' . $this->input['search'] . '%';
                 $where_conditions[] = "(
                     p.name LIKE :search OR 
                     p.description LIKE :search OR 
                     p.brand LIKE :search OR
+                    p.sku LIKE :search OR
+                    p.part_number LIKE :search OR
                     p.category_name LIKE :search
                 )";
                 $params['search'] = $search_term;
+            }
+            
+            // Búsqueda específica por número de parte
+            if (!empty($this->input['search_part_number'])) {
+                $part_number_search = '%' . $this->input['search_part_number'] . '%';
+                $where_conditions[] = "p.part_number LIKE :part_number_search";
+                $params['part_number_search'] = $part_number_search;
             }
             
             // Filtro por marca
@@ -149,27 +165,7 @@ class ProductsGetAPI extends ApiBase {
             $products = Database::fetchAll($data_query, $params);
             
             // Formatear productos
-            $formatted_products = array_map([ApiUtils::class, 'formatProductResponse'], $products);
-            
-            // Agregar información adicional
-            foreach ($formatted_products as &$product) {
-                // Calcular descuentos si aplica
-                if ($product['cost_price'] > 0) {
-                    $product['profit_margin'] = $product['price'] - $product['cost_price'];
-                    $product['profit_percentage'] = round(($product['profit_margin'] / $product['cost_price']) * 100, 2);
-                }
-                
-                // URLs de imagen (placeholder por ahora)
-                $product['image_url'] = $product['image_url'] ?: '/images/products/placeholder.jpg';
-                
-                // Información de disponibilidad
-                $product['availability'] = [
-                    'in_stock' => $product['stock'] > 0,
-                    'quantity' => $product['stock'],
-                    'status' => $product['stock_status_text'],
-                    'low_stock_threshold' => $product['min_stock']
-                ];
-            }
+            $formatted_products = array_map([$this, 'formatProductResponse'], $products);
             
             // Obtener información adicional si es solicitada
             $include_stats = ($this->input['include_stats'] ?? false);
@@ -204,6 +200,163 @@ class ProductsGetAPI extends ApiBase {
     }
     
     /**
+     * Obtener producto por ID
+     */
+    private function getProductById(int $id): void {
+        try {
+            $query = "
+                SELECT p.*, c.name as category_name, c.slug as category_slug
+                FROM v_products_extended p
+                WHERE p.id = :id AND p.status = 'active'
+                LIMIT 1
+            ";
+            
+            $product = Database::fetchOne($query, ['id' => $id]);
+            
+            if (!$product) {
+                $this->sendError(404, 'Producto no encontrado', ['id' => $id]);
+            }
+            
+            $formatted_product = $this->formatProductResponse($product);
+            $formatted_product['related_products'] = $this->getRelatedProducts($id, $product['category_id']);
+            
+            $this->sendSuccess($formatted_product, 200, 'Producto encontrado');
+            
+        } catch (Exception $e) {
+            error_log("[PrismaTech API] Error getting product by ID: " . $e->getMessage());
+            $this->sendError(500, 'Error interno del servidor');
+        }
+    }
+    
+    /**
+     * Obtener producto por slug
+     */
+    private function getProductBySlug(string $slug): void {
+        try {
+            $query = "
+                SELECT p.*, c.name as category_name, c.slug as category_slug
+                FROM v_products_extended p
+                WHERE p.slug = :slug AND p.status = 'active'
+                LIMIT 1
+            ";
+            
+            $product = Database::fetchOne($query, ['slug' => $slug]);
+            
+            if (!$product) {
+                $this->sendError(404, 'Producto no encontrado', ['slug' => $slug]);
+            }
+            
+            $formatted_product = $this->formatProductResponse($product);
+            $formatted_product['related_products'] = $this->getRelatedProducts($product['id'], $product['category_id']);
+            
+            $this->sendSuccess($formatted_product, 200, 'Producto encontrado');
+            
+        } catch (Exception $e) {
+            error_log("[PrismaTech API] Error getting product by slug: " . $e->getMessage());
+            $this->sendError(500, 'Error interno del servidor');
+        }
+    }
+    
+    /**
+     * NUEVO: Obtener producto por número de parte
+     */
+    private function getProductByPartNumber(string $partNumber): void {
+        try {
+            $query = "
+                SELECT p.*, c.name as category_name, c.slug as category_slug
+                FROM v_products_extended p
+                WHERE p.part_number = :part_number AND p.status = 'active'
+                LIMIT 1
+            ";
+            
+            $product = Database::fetchOne($query, ['part_number' => $partNumber]);
+            
+            if (!$product) {
+                $this->sendError(404, 'Producto no encontrado', ['part_number' => $partNumber]);
+            }
+            
+            $formatted_product = $this->formatProductResponse($product);
+            $formatted_product['related_products'] = $this->getRelatedProducts($product['id'], $product['category_id']);
+            
+            $this->sendSuccess($formatted_product, 200, 'Producto encontrado por número de parte');
+            
+        } catch (Exception $e) {
+            error_log("[PrismaTech API] Error getting product by part number: " . $e->getMessage());
+            $this->sendError(500, 'Error interno del servidor');
+        }
+    }
+    
+    /**
+     * Formatear respuesta de producto
+     */
+    private function formatProductResponse(array $product): array {
+        // Parsear JSON fields si existen
+        if (isset($product['specifications']) && is_string($product['specifications'])) {
+            $product['specifications'] = json_decode($product['specifications'], true) ?? [];
+        }
+        
+        if (isset($product['compatibility']) && is_string($product['compatibility'])) {
+            $product['compatibility'] = json_decode($product['compatibility'], true) ?? [];
+        }
+        
+        if (isset($product['dimensions']) && is_string($product['dimensions'])) {
+            $product['dimensions'] = json_decode($product['dimensions'], true) ?? [];
+        }
+        
+        // Convertir tipos numéricos
+        $numeric_fields = ['id', 'category_id', 'price', 'cost_price', 'stock', 'min_stock', 'max_stock', 'warranty_months'];
+        foreach ($numeric_fields as $field) {
+            if (isset($product[$field])) {
+                $product[$field] = is_numeric($product[$field]) ? (float)$product[$field] : null;
+            }
+        }
+        
+        // Convertir booleanos
+        if (isset($product['featured'])) {
+            $product['featured'] = (bool)$product['featured'];
+        }
+        
+        // Agregar información de disponibilidad
+        $product['availability'] = [
+            'in_stock' => $product['stock'] > 0,
+            'quantity' => $product['stock'],
+            'status' => $product['stock_status_text'] ?? $product['stock_status'] ?? 'unknown',
+            'low_stock_threshold' => $product['min_stock']
+        ];
+        
+        // URLs de imagen (placeholder por ahora)
+        $product['image_url'] = $product['image_url'] ?: '/images/products/placeholder.jpg';
+        
+        return $product;
+    }
+    
+    /**
+     * Obtener productos relacionados
+     */
+    private function getRelatedProducts(int $product_id, int $category_id): array {
+        try {
+            $query = "
+                SELECT id, name, slug, part_number, price, stock, image_url, stock_status
+                FROM v_products_extended
+                WHERE category_id = :category_id 
+                AND id != :product_id 
+                AND status = 'active'
+                AND stock > 0
+                ORDER BY featured DESC, RAND()
+                LIMIT 4
+            ";
+            
+            return Database::fetchAll($query, [
+                'category_id' => $category_id,
+                'product_id' => $product_id
+            ]);
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
      * Obtener estadísticas de productos
      */
     private function getProductStatistics(array $params, string $base_query): array {
@@ -226,35 +379,6 @@ class ProductsGetAPI extends ApiBase {
                 
             $stock_stats = Database::fetchOne($stock_stats_query, $params);
             
-            // Top categorías
-            $categories_query = "
-                SELECT 
-                    p.category_name,
-                    p.category_slug,
-                    COUNT(*) as product_count
-                " . $base_query . "
-                GROUP BY p.category_id, p.category_name, p.category_slug
-                ORDER BY product_count DESC
-                LIMIT 5
-            ";
-            
-            $top_categories = Database::fetchAll($categories_query, $params);
-            
-            // Top marcas
-            $brands_query = "
-                SELECT 
-                    p.brand,
-                    COUNT(*) as product_count,
-                    AVG(p.price) as avg_price
-                " . $base_query . "
-                AND p.brand IS NOT NULL AND p.brand != ''
-                GROUP BY p.brand
-                ORDER BY product_count DESC
-                LIMIT 5
-            ";
-            
-            $top_brands = Database::fetchAll($brands_query, $params);
-            
             return [
                 'total_products' => (int)$total_result['total'],
                 'stock_distribution' => [
@@ -267,9 +391,7 @@ class ProductsGetAPI extends ApiBase {
                     'max' => (float)$stock_stats['max_price'],
                     'average' => round((float)$stock_stats['avg_price'], 2)
                 ],
-                'total_inventory_value' => round((float)$stock_stats['total_inventory_value'], 2),
-                'top_categories' => $top_categories,
-                'top_brands' => $top_brands
+                'total_inventory_value' => round((float)$stock_stats['total_inventory_value'], 2)
             ];
             
         } catch (Exception $e) {
@@ -279,128 +401,5 @@ class ProductsGetAPI extends ApiBase {
     }
 }
 
-// Manejar rate limiting básico
-$client_ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-
-// Rate limit: 100 requests por hora por IP para GET (más permisivo para lectura)
-try {
-    $rate_limit_key = "products_get:" . $client_ip;
-    $api = new ProductsGetAPI();
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => [
-            'code' => 500,
-            'message' => 'Error interno del servidor'
-        ]
-    ]);
-}
-
-/**
- * Endpoint adicional para obtener un producto específico por ID o slug
- * GET /api/products/get.php?id=123
- * GET /api/products/get.php?slug=producto-ejemplo
- */
-class SingleProductAPI extends ApiBase {
-    
-    public function getProductById(int $id): void {
-        try {
-            $query = "
-                SELECT p.*, c.name as category_name, c.slug as category_slug
-                FROM v_products_extended p
-                WHERE p.id = :id AND p.status = 'active'
-                LIMIT 1
-            ";
-            
-            $product = Database::fetchOne($query, ['id' => $id]);
-            
-            if (!$product) {
-                $this->sendError(404, 'Producto no encontrado', ['id' => $id]);
-            }
-            
-            $formatted_product = ApiUtils::formatProductResponse($product);
-            
-            // Agregar información adicional
-            $formatted_product['related_products'] = $this->getRelatedProducts($id, $product['category_id']);
-            $formatted_product['availability'] = [
-                'in_stock' => $product['stock'] > 0,
-                'quantity' => $product['stock'],
-                'status' => $product['stock_status'],
-                'low_stock_threshold' => $product['min_stock']
-            ];
-            
-            $this->sendSuccess($formatted_product, 200, 'Producto encontrado');
-            
-        } catch (Exception $e) {
-            error_log("[PrismaTech API] Error getting product by ID: " . $e->getMessage());
-            $this->sendError(500, 'Error interno del servidor');
-        }
-    }
-    
-    public function getProductBySlug(string $slug): void {
-        try {
-            $query = "
-                SELECT p.*, c.name as category_name, c.slug as category_slug
-                FROM v_products_extended p
-                WHERE p.slug = :slug AND p.status = 'active'
-                LIMIT 1
-            ";
-            
-            $product = Database::fetchOne($query, ['slug' => $slug]);
-            
-            if (!$product) {
-                $this->sendError(404, 'Producto no encontrado', ['slug' => $slug]);
-            }
-            
-            $formatted_product = ApiUtils::formatProductResponse($product);
-            
-            // Agregar información adicional
-            $formatted_product['related_products'] = $this->getRelatedProducts($product['id'], $product['category_id']);
-            $formatted_product['availability'] = [
-                'in_stock' => $product['stock'] > 0,
-                'quantity' => $product['stock'],
-                'status' => $product['stock_status'],
-                'low_stock_threshold' => $product['min_stock']
-            ];
-            
-            $this->sendSuccess($formatted_product, 200, 'Producto encontrado');
-            
-        } catch (Exception $e) {
-            error_log("[PrismaTech API] Error getting product by slug: " . $e->getMessage());
-            $this->sendError(500, 'Error interno del servidor');
-        }
-    }
-    
-    private function getRelatedProducts(int $product_id, int $category_id): array {
-        try {
-            $query = "
-                SELECT id, name, slug, price, stock, image_url, stock_status
-                FROM v_products_extended
-                WHERE category_id = :category_id 
-                AND id != :product_id 
-                AND status = 'active'
-                AND stock > 0
-                ORDER BY featured DESC, RAND()
-                LIMIT 4
-            ";
-            
-            return Database::fetchAll($query, [
-                'category_id' => $category_id,
-                'product_id' => $product_id
-            ]);
-            
-        } catch (Exception $e) {
-            return [];
-        }
-    }
-}
-
-// Si se solicita un producto específico
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $single_api = new SingleProductAPI();
-    $single_api->getProductById((int)$_GET['id']);
-} elseif (isset($_GET['slug']) && !empty($_GET['slug'])) {
-    $single_api = new SingleProductAPI();
-    $single_api->getProductBySlug($_GET['slug']);
-}
+// Instanciar API
+new ProductsGetAPI();

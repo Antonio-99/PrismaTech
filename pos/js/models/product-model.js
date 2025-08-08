@@ -5,6 +5,7 @@ class ProductModel {
         this.id = data.id;
         this.name = data.name;
         this.sku = data.sku;
+        this.part_number = data.part_number || ''; // NUEVO: Número de parte
         this.price = parseFloat(data.price);
         this.cost_price = parseFloat(data.cost_price || 0);
         this.stock = parseInt(data.stock);
@@ -74,6 +75,32 @@ class ProductModel {
     }
     
     /**
+     * Get display name with part number
+     */
+    getDisplayName() {
+        if (this.part_number) {
+            return `${this.name} (P/N: ${this.part_number})`;
+        }
+        return this.name;
+    }
+    
+    /**
+     * Search match - includes part number
+     */
+    matchesSearch(term) {
+        if (!term) return true;
+        
+        const searchTerm = term.toLowerCase();
+        return (
+            this.name.toLowerCase().includes(searchTerm) ||
+            this.sku.toLowerCase().includes(searchTerm) ||
+            (this.part_number && this.part_number.toLowerCase().includes(searchTerm)) ||
+            (this.brand && this.brand.toLowerCase().includes(searchTerm)) ||
+            (this.description && this.description.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    /**
      * Convert to plain object
      */
     toJSON() {
@@ -81,6 +108,7 @@ class ProductModel {
             id: this.id,
             name: this.name,
             sku: this.sku,
+            part_number: this.part_number,
             price: this.price,
             cost_price: this.cost_price,
             stock: this.stock,
