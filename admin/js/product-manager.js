@@ -7,7 +7,7 @@
 class ProductManager {
     constructor() {
         this.filteredProducts = [];
-        this.whatsappNumber = '5212381234567';
+        this.whatsappNumber = '522323793951';
         this.isDataLoaded = false;
         
         // Escuchar cuando los datos estén listos
