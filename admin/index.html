@@ -5,498 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - PrismaTech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-blue: #1e3a8a;
-            --primary-red: #dc2626;
-            --primary-gradient: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-red) 100%);
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-500: #6b7280;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-            --white: #ffffff;
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--gray-50);
-            color: var(--gray-900);
-        }
-
-        /* Layout */
-        .admin-container {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: var(--white);
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            width: 250px;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-gradient);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary-blue);
-        }
-
-        .sidebar-nav {
-            padding: 1rem 0;
-        }
-
-        .nav-item {
-            display: block;
-            padding: 0.75rem 1.5rem;
-            color: var(--gray-700);
-            text-decoration: none;
-            transition: var(--transition);
-            border-left: 3px solid transparent;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: var(--gray-50);
-            color: var(--primary-blue);
-            border-left-color: var(--primary-blue);
-        }
-
-        .nav-item i {
-            width: 20px;
-            margin-right: 10px;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 2rem;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gray-900);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        /* Cards and Components */
-        .card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary-blue);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--gray-600);
-            font-size: 0.9rem;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 58, 138, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--gray-200);
-            color: var(--gray-700);
-        }
-
-        .btn-secondary:hover {
-            background: var(--gray-300);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--error);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--gray-700);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        /* Tables */
-        .table-container {
-            background: var(--white);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .table-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .table-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th,
-        .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--gray-100);
-        }
-
-        .table th {
-            background: var(--gray-50);
-            font-weight: 600;
-            color: var(--gray-700);
-        }
-
-        .table tr:hover {
-            background: var(--gray-50);
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: var(--white);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--gray-500);
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-footer {
-            padding: 1.5rem;
-            border-top: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        /* Filters and Search */
-        .filters-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px 12px 10px 40px;
-            border: 1px solid var(--gray-300);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-        }
-
-        /* Status badges */
-        .badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .admin-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                transform: translateX(-250px);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .filters-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-box {
-                min-width: unset;
-            }
-        }
-
-        /* Page specific styles */
-        .page-content {
-            display: none;
-        }
-
-        .page-content.active {
-            display: block;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--gray-500);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--gray-300);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 3rem;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--gray-200);
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <link rel="stylesheet" href="css/admin-styles.css">
 </head>
 <body>
     <div class="admin-container">
@@ -504,12 +13,12 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon">PT</div>
-                <div class="logo-text">Admin Panel</div>
+                <div class="logo-text">Administración</div>
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-page="dashboard">
                     <i class="fas fa-chart-line"></i>
-                    Dashboard
+                    
                 </a>
                 <a href="#" class="nav-item" data-page="products">
                     <i class="fas fa-box"></i>
@@ -519,20 +28,41 @@
                     <i class="fas fa-tags"></i>
                     Categorías
                 </a>
+                <a href="#" class="nav-item" data-page="inventory">
+                    <i class="fas fa-warehouse"></i>
+                    Inventario
+                </a>
                 <a href="#" class="nav-item" data-page="sales">
                     <i class="fas fa-shopping-cart"></i>
                     Ventas/Cotizaciones
+                </a>
+                <a href="#" class="nav-item" data-page="customers">
+                    <i class="fas fa-users"></i>
+                    Clientes
+                </a>
+                <a href="#" class="nav-item" data-page="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    Reportes
                 </a>
                 <a href="#" class="nav-item" data-page="settings">
                     <i class="fas fa-cog"></i>
                     Configuración
                 </a>
-                <a href="index.html" class="nav-item">
+                <a href="../index.html" class="nav-item">
                     <i class="fas fa-globe"></i>
                     Ver Sitio Web
                 </a>
+                <a href="#" class="nav-item" onclick="adminManager.logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </a>
             </nav>
         </aside>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" onclick="adminManager.toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -541,44 +71,75 @@
                 <div class="page-header">
                     <h1 class="page-title">Dashboard</h1>
                     <div class="header-actions">
-                        <span class="text-muted">Último acceso: Hoy</span>
+                        <span class="user-info">
+                            <i class="fas fa-user-circle"></i> Admin
+                        </span>
+                        <span class="text-muted" id="current-date"></span>
                     </div>
                 </div>
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value" id="total-products">0</div>
-                        <div class="stat-label">Productos Publicados</div>
+                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-products">0</div>
+                            <div class="stat-label">Productos Publicados</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="total-categories">0</div>
-                        <div class="stat-label">Categorías</div>
+                        <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-categories">0</div>
+                            <div class="stat-label">Categorías</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value" id="total-sales">0</div>
-                        <div class="stat-label">Cotizaciones</div>
+                        <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-quotes">0</div>
+                            <div class="stat-label">Cotizaciones</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">$0</div>
-                        <div class="stat-label">Ventas del Mes</div>
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-customers">0</div>
+                            <div class="stat-label">Clientes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Accesos Rápidos</h3>
+                        <div class="quick-actions">
+                            <button class="btn btn-primary" onclick="adminManager.showPage('products'); adminManager.openProductModal()">
+                                <i class="fas fa-plus"></i> Agregar Producto
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminManager.showPage('sales'); adminManager.openSaleModal()">
+                                <i class="fas fa-file-invoice"></i> Nueva Cotización
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminManager.showPage('inventory')">
+                                <i class="fas fa-warehouse"></i> Ver Inventario
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminManager.exportData()">
+                                <i class="fas fa-download"></i> Exportar Datos
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Actividad Reciente</h3>
+                        <div id="recent-activity" class="activity-list">
+                            <!-- Activity items will be loaded here -->
+                        </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3>Accesos Rápidos</h3>
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-                        <button class="btn btn-primary" onclick="showPage('products')">
-                            <i class="fas fa-plus"></i> Agregar Producto
-                        </button>
-                        <button class="btn btn-secondary" onclick="showPage('categories')">
-                            <i class="fas fa-tags"></i> Gestionar Categorías
-                        </button>
-                        <button class="btn btn-secondary" onclick="showPage('sales')">
-                            <i class="fas fa-file-invoice"></i> Nueva Cotización
-                        </button>
-                        <a href="index.html" class="btn btn-secondary">
-                            <i class="fas fa-external-link-alt"></i> Ver Sitio Web
-                        </a>
+                    <h3>Productos con Bajo Stock</h3>
+                    <div id="low-stock-products">
+                        <!-- Low stock items will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -588,7 +149,10 @@
                 <div class="page-header">
                     <h1 class="page-title">Gestión de Productos</h1>
                     <div class="header-actions">
-                        <button class="btn btn-primary" onclick="openProductModal()">
+                        <button class="btn btn-secondary" onclick="adminManager.importProducts()">
+                            <i class="fas fa-upload"></i> Importar
+                        </button>
+                        <button class="btn btn-primary" onclick="adminManager.openProductModal()">
                             <i class="fas fa-plus"></i> Nuevo Producto
                         </button>
                     </div>
@@ -599,30 +163,41 @@
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" class="search-input" placeholder="Buscar productos..." id="products-search">
                     </div>
-                    <select class="form-control" style="width: auto;" id="products-category-filter">
+                    <select class="filter-select" id="products-category-filter">
                         <option value="">Todas las categorías</option>
+                    </select>
+                    <select class="filter-select" id="products-status-filter">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="out_of_stock">Sin Stock</option>
                     </select>
                 </div>
 
                 <div class="table-container">
                     <div class="table-header">
                         <h3 class="table-title">Lista de Productos</h3>
+                        <div class="table-actions">
+                            <span id="products-count">0 productos</span>
+                        </div>
                     </div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>SKU</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="products-table">
-                            <!-- Products will be loaded here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>SKU</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table">
+                                <!-- Products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -631,7 +206,7 @@
                 <div class="page-header">
                     <h1 class="page-title">Gestión de Categorías</h1>
                     <div class="header-actions">
-                        <button class="btn btn-primary" onclick="openCategoryModal()">
+                        <button class="btn btn-primary" onclick="adminManager.openCategoryModal()">
                             <i class="fas fa-plus"></i> Nueva Categoría
                         </button>
                     </div>
@@ -641,19 +216,70 @@
                     <div class="table-header">
                         <h3 class="table-title">Lista de Categorías</h3>
                     </div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Descripción</th>
-                                <th>Productos</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categories-table">
-                            <!-- Categories will be loaded here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Productos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-table">
+                                <!-- Categories will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Page -->
+            <div class="page-content" id="inventory-page">
+                <div class="page-header">
+                    <h1 class="page-title">Gestión de Inventario</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="adminManager.adjustInventory()">
+                            <i class="fas fa-edit"></i> Ajustar Stock
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Buscar en inventario..." id="inventory-search">
+                    </div>
+                    <select class="filter-select" id="inventory-filter">
+                        <option value="">Todos</option>
+                        <option value="low">Stock Bajo</option>
+                        <option value="out">Sin Stock</option>
+                        <option value="available">Disponible</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Control de Inventario</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>SKU</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Ubicación</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table">
+                                <!-- Inventory will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -662,32 +288,122 @@
                 <div class="page-header">
                     <h1 class="page-title">Ventas y Cotizaciones</h1>
                     <div class="header-actions">
-                        <button class="btn btn-primary" onclick="openSaleModal()">
-                            <i class="fas fa-plus"></i> Nueva Venta
+                        <button class="btn btn-primary" onclick="adminManager.openSaleModal()">
+                            <i class="fas fa-plus"></i> Nueva Venta/Cotización
                         </button>
                     </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Buscar por cliente o producto..." id="sales-search">
+                    </div>
+                    <input type="date" class="filter-select" id="sales-date-from">
+                    <input type="date" class="filter-select" id="sales-date-to">
+                    <select class="filter-select" id="sales-status-filter">
+                        <option value="">Todos los estados</option>
+                        <option value="cotizacion">Cotización</option>
+                        <option value="vendido">Vendido</option>
+                        <option value="entregado">Entregado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
                 </div>
 
                 <div class="table-container">
                     <div class="table-header">
                         <h3 class="table-title">Registro de Ventas</h3>
                     </div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sales-table">
-                            <!-- Sales will be loaded here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table">
+                                <!-- Sales will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers Page -->
+            <div class="page-content" id="customers-page">
+                <div class="page-header">
+                    <h1 class="page-title">Gestión de Clientes</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="adminManager.openCustomerModal()">
+                            <i class="fas fa-plus"></i> Nuevo Cliente
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Buscar clientes..." id="customers-search">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Lista de Clientes</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Compras</th>
+                                    <th>Última Compra</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-table">
+                                <!-- Customers will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div class="page-content" id="reports-page">
+                <div class="page-header">
+                    <h1 class="page-title">Reportes</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="adminManager.generateReport()">
+                            <i class="fas fa-file-pdf"></i> Generar Reporte
+                        </button>
+                    </div>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="card">
+                        <h3>Ventas del Mes</h3>
+                        <canvas id="sales-chart"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>Productos Más Vendidos</h3>
+                        <div id="top-products">
+                            <!-- Top products will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Resumen Financiero</h3>
+                        <div id="financial-summary">
+                            <!-- Financial summary will be loaded here -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -697,623 +413,112 @@
                     <h1 class="page-title">Configuración</h1>
                 </div>
 
-                <div class="card">
-                    <h3>Información de la Empresa</h3>
-                    <form id="company-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Nombre de la Empresa</label>
-                                <input type="text" class="form-control" value="PrismaTech">
+                <div class="settings-grid">
+                    <div class="card">
+                        <h3>Información de la Empresa</h3>
+                        <form id="company-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre de la Empresa</label>
+                                    <input type="text" class="form-control" id="company-name" value="PrismaTech">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">RFC</label>
+                                    <input type="text" class="form-control" id="company-rfc">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" id="company-phone" value="(238) 123-4567">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">WhatsApp</label>
+                                    <input type="text" class="form-control" id="company-whatsapp" value="5212381234567">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="company-email" value="info@prismatech.mx">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sitio Web</label>
+                                    <input type="text" class="form-control" id="company-website" value="www.prismatech.mx">
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Teléfono</label>
-                                <input type="text" class="form-control" value="(238) 123-4567">
+                                <label class="form-label">Dirección</label>
+                                <textarea class="form-control" id="company-address" rows="2">Teziutlán, Puebla, México</textarea>
                             </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Configuración del Sistema</h3>
+                        <form id="system-form">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" id="enable-notifications" checked>
+                                    Habilitar notificaciones
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" id="enable-stock-alerts" checked>
+                                    Alertas de stock bajo
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Stock mínimo por defecto</label>
+                                <input type="number" class="form-control" id="default-min-stock" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Moneda</label>
+                                <select class="form-control" id="currency">
+                                    <option value="MXN">MXN - Peso Mexicano</option>
+                                    <option value="USD">USD - Dólar</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Configuración
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>Respaldo y Restauración</h3>
+                        <div class="backup-actions">
+                            <button class="btn btn-secondary" onclick="adminManager.backupData()">
+                                <i class="fas fa-download"></i> Crear Respaldo
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminManager.restoreData()">
+                                <i class="fas fa-upload"></i> Restaurar Datos
+                            </button>
+                            <button class="btn btn-danger" onclick="adminManager.resetData()">
+                                <i class="fas fa-trash"></i> Restablecer Sistema
+                            </button>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" value="info@prismatech.mx">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">WhatsApp</label>
-                                <input type="text" class="form-control" value="5212381234567">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Dirección</label>
-                            <input type="text" class="form-control" value="Teziutlán, Puebla, México">
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar Cambios
-                        </button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Product Modal -->
-    <div class="modal-overlay" id="product-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="product-modal-title">Nuevo Producto</h3>
-                <button class="modal-close" onclick="closeModal('product-modal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="product-form">
-                    <input type="hidden" id="product-id">
-                    <div class="form-group">
-                        <label class="form-label">Nombre del Producto *</label>
-                        <input type="text" class="form-control" id="product-name" required>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Categoría *</label>
-                            <select class="form-control" id="product-category" required>
-                                <option value="">Seleccionar categoría</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Marca</label>
-                            <input type="text" class="form-control" id="product-brand">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">SKU *</label>
-                            <input type="text" class="form-control" id="product-sku" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Número de Parte</label>
-                            <input type="text" class="form-control" id="product-part-number">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Precio *</label>
-                        <input type="number" class="form-control" id="product-price" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" id="product-description" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Icono (Clase Font Awesome)</label>
-                        <input type="text" class="form-control" id="product-icon" placeholder="fas fa-laptop">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('product-modal')">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveProduct()">
-                    <i class="fas fa-save"></i> Guardar
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Modals -->
+    <div id="modals-container"></div>
 
-    <!-- Category Modal -->
-    <div class="modal-overlay" id="category-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="category-modal-title">Nueva Categoría</h3>
-                <button class="modal-close" onclick="closeModal('category-modal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="category-form">
-                    <input type="hidden" id="category-id">
-                    <div class="form-group">
-                        <label class="form-label">Nombre de la Categoría *</label>
-                        <input type="text" class="form-control" id="category-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Descripción</label>
-                        <input type="text" class="form-control" id="category-description">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Icono (Clase Font Awesome)</label>
-                        <input type="text" class="form-control" id="category-icon" placeholder="fas fa-laptop">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('category-modal')">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveCategory()">
-                    <i class="fas fa-save"></i> Guardar
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
 
-    <!-- Sale Modal -->
-    <div class="modal-overlay" id="sale-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Nueva Venta/Cotización</h3>
-                <button class="modal-close" onclick="closeModal('sale-modal')">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="sale-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Cliente *</label>
-                            <input type="text" class="form-control" id="sale-customer" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" id="sale-phone">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Producto *</label>
-                        <select class="form-control" id="sale-product" required>
-                            <option value="">Seleccionar producto</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Cantidad *</label>
-                            <input type="number" class="form-control" id="sale-quantity" value="1" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Precio Unitario *</label>
-                            <input type="number" class="form-control" id="sale-price" step="0.01" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Estado</label>
-                        <select class="form-control" id="sale-status">
-                            <option value="cotizacion">Cotización</option>
-                            <option value="vendido">Vendido</option>
-                            <option value="entregado">Entregado</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Notas</label>
-                        <textarea class="form-control" id="sale-notes" rows="2"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('sale-modal')">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveSale()">
-                    <i class="fas fa-save"></i> Guardar
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Data management (en producción vendría de una base de datos)
-        let products = JSON.parse(localStorage.getItem('admin_products')) || [];
-        let categories = JSON.parse(localStorage.getItem('admin_categories')) || [
-            { id: 1, name: "Pantallas", description: "Displays LCD, LED, OLED", icon: "fas fa-tv" },
-            { id: 2, name: "Teclados", description: "Teclados de reemplazo", icon: "fas fa-keyboard" },
-            { id: 3, name: "Baterías", description: "Baterías para laptops", icon: "fas fa-battery-three-quarters" },
-            { id: 4, name: "Cargadores", description: "Adaptadores de corriente", icon: "fas fa-plug" },
-            { id: 5, name: "Memorias", description: "RAM DDR3, DDR4, DDR5", icon: "fas fa-memory" },
-            { id: 6, name: "Almacenamiento", description: "SSD, HDD, M.2 NVMe", icon: "fas fa-hdd" }
-        ];
-        let sales = JSON.parse(localStorage.getItem('admin_sales')) || [];
-
-        // Navigation
-        function showPage(pageId) {
-            // Update navigation
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
-
-            // Show page content
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(`${pageId}-page`).classList.add('active');
-
-            // Load page data
-            switch(pageId) {
-                case 'dashboard':
-                    loadDashboard();
-                    break;
-                case 'products':
-                    loadProducts();
-                    break;
-                case 'categories':
-                    loadCategories();
-                    break;
-                case 'sales':
-                    loadSales();
-                    break;
-            }
-        }
-
-        // Dashboard
-        function loadDashboard() {
-            document.getElementById('total-products').textContent = products.length;
-            document.getElementById('total-categories').textContent = categories.length;
-            document.getElementById('total-sales').textContent = sales.length;
-        }
-
-        // Products Management
-        function loadProducts() {
-            const tbody = document.getElementById('products-table');
-            const categoryFilter = document.getElementById('products-category-filter');
-            
-            // Load category filter
-            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' +
-                categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
-
-            renderProducts();
-        }
-
-        function renderProducts() {
-            const tbody = document.getElementById('products-table');
-            const searchTerm = document.getElementById('products-search').value.toLowerCase();
-            const categoryFilter = document.getElementById('products-category-filter').value;
-
-            let filteredProducts = products.filter(product => {
-                const matchesSearch = !searchTerm || 
-                    product.name.toLowerCase().includes(searchTerm) ||
-                    product.sku.toLowerCase().includes(searchTerm) ||
-                    (product.part_number && product.part_number.toLowerCase().includes(searchTerm));
-                const matchesCategory = !categoryFilter || product.category_id == categoryFilter;
-                return matchesSearch && matchesCategory;
-            });
-
-            if (filteredProducts.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            <i class="fas fa-box"></i>
-                            <div>No hay productos para mostrar</div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = filteredProducts.map(product => {
-                const category = categories.find(c => c.id === product.category_id);
-                return `
-                    <tr>
-                        <td>
-                            <div><strong>${product.name}</strong></div>
-                            <small style="color: var(--gray-500);">${product.brand || ''}</small>
-                        </td>
-                        <td>${category ? category.name : 'Sin categoría'}</td>
-                        <td>$${product.price.toLocaleString()}</td>
-                        <td><code>${product.sku}</code></td>
-                        <td><span class="badge badge-success">Activo</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-secondary" onclick="editProduct(${product.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function openProductModal(productId = null) {
-            const modal = document.getElementById('product-modal');
-            const form = document.getElementById('product-form');
-            const categorySelect = document.getElementById('product-category');
-            
-            // Load categories
-            categorySelect.innerHTML = '<option value="">Seleccionar categoría</option>' +
-                categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
-
-            if (productId) {
-                const product = products.find(p => p.id === productId);
-                if (product) {
-                    document.getElementById('product-modal-title').textContent = 'Editar Producto';
-                    document.getElementById('product-id').value = product.id;
-                    document.getElementById('product-name').value = product.name;
-                    document.getElementById('product-category').value = product.category_id;
-                    document.getElementById('product-brand').value = product.brand || '';
-                    document.getElementById('product-sku').value = product.sku;
-                    document.getElementById('product-part-number').value = product.part_number || '';
-                    document.getElementById('product-price').value = product.price;
-                    document.getElementById('product-description').value = product.description || '';
-                    document.getElementById('product-icon').value = product.icon || '';
-                }
-            } else {
-                document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
-                form.reset();
-                document.getElementById('product-id').value = '';
-            }
-
-            modal.classList.add('active');
-        }
-
-        function saveProduct() {
-            const id = document.getElementById('product-id').value;
-            const productData = {
-                name: document.getElementById('product-name').value,
-                category_id: parseInt(document.getElementById('product-category').value),
-                brand: document.getElementById('product-brand').value,
-                sku: document.getElementById('product-sku').value,
-                part_number: document.getElementById('product-part-number').value,
-                price: parseFloat(document.getElementById('product-price').value),
-                description: document.getElementById('product-description').value,
-                icon: document.getElementById('product-icon').value || 'fas fa-cube'
-            };
-
-            if (id) {
-                // Edit existing product
-                const index = products.findIndex(p => p.id == id);
-                if (index !== -1) {
-                    products[index] = { ...products[index], ...productData };
-                }
-            } else {
-                // Create new product
-                productData.id = Date.now();
-                products.push(productData);
-            }
-
-            localStorage.setItem('admin_products', JSON.stringify(products));
-            closeModal('product-modal');
-            renderProducts();
-            loadDashboard();
-        }
-
-        function editProduct(id) {
-            openProductModal(id);
-        }
-
-        function deleteProduct(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem('admin_products', JSON.stringify(products));
-                renderProducts();
-                loadDashboard();
-            }
-        }
-
-        // Categories Management
-        function loadCategories() {
-            renderCategories();
-        }
-
-        function renderCategories() {
-            const tbody = document.getElementById('categories-table');
-            
-            tbody.innerHTML = categories.map(category => {
-                const productCount = products.filter(p => p.category_id === category.id).length;
-                return `
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="${category.icon}" style="color: var(--primary-blue);"></i>
-                                <strong>${category.name}</strong>
-                            </div>
-                        </td>
-                        <td>${category.description}</td>
-                        <td>${productCount} productos</td>
-                        <td>
-                            <button class="btn btn-sm btn-secondary" onclick="editCategory(${category.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function openCategoryModal(categoryId = null) {
-            const modal = document.getElementById('category-modal');
-            const form = document.getElementById('category-form');
-            
-            if (categoryId) {
-                const category = categories.find(c => c.id === categoryId);
-                if (category) {
-                    document.getElementById('category-modal-title').textContent = 'Editar Categoría';
-                    document.getElementById('category-id').value = category.id;
-                    document.getElementById('category-name').value = category.name;
-                    document.getElementById('category-description').value = category.description;
-                    document.getElementById('category-icon').value = category.icon;
-                }
-            } else {
-                document.getElementById('category-modal-title').textContent = 'Nueva Categoría';
-                form.reset();
-                document.getElementById('category-id').value = '';
-            }
-
-            modal.classList.add('active');
-        }
-
-        function saveCategory() {
-            const id = document.getElementById('category-id').value;
-            const categoryData = {
-                name: document.getElementById('category-name').value,
-                description: document.getElementById('category-description').value,
-                icon: document.getElementById('category-icon').value || 'fas fa-tag'
-            };
-
-            if (id) {
-                const index = categories.findIndex(c => c.id == id);
-                if (index !== -1) {
-                    categories[index] = { ...categories[index], ...categoryData };
-                }
-            } else {
-                categoryData.id = Date.now();
-                categories.push(categoryData);
-            }
-
-            localStorage.setItem('admin_categories', JSON.stringify(categories));
-            closeModal('category-modal');
-            renderCategories();
-            loadDashboard();
-        }
-
-        function editCategory(id) {
-            openCategoryModal(id);
-        }
-
-        function deleteCategory(id) {
-            const productCount = products.filter(p => p.category_id === id).length;
-            if (productCount > 0) {
-                alert('No se puede eliminar esta categoría porque tiene productos asociados.');
-                return;
-            }
-            
-            if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
-                categories = categories.filter(c => c.id !== id);
-                localStorage.setItem('admin_categories', JSON.stringify(categories));
-                renderCategories();
-                loadDashboard();
-            }
-        }
-
-        // Sales Management
-        function loadSales() {
-            renderSales();
-        }
-
-        function renderSales() {
-            const tbody = document.getElementById('sales-table');
-            
-            if (sales.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-shopping-cart"></i>
-                            <div>No hay ventas registradas</div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = sales.map(sale => {
-                const product = products.find(p => p.id === sale.product_id);
-                const statusClass = sale.status === 'vendido' ? 'badge-success' : 
-                                  sale.status === 'entregado' ? 'badge-success' : 'badge-warning';
-                
-                return `
-                    <tr>
-                        <td>${new Date(sale.date).toLocaleDateString()}</td>
-                        <td>
-                            <div><strong>${sale.customer}</strong></div>
-                            <small style="color: var(--gray-500);">${sale.phone || ''}</small>
-                        </td>
-                        <td>${product ? product.name : 'Producto eliminado'}</td>
-                        <td>${sale.quantity}</td>
-                        <td>$${(sale.price * sale.quantity).toLocaleString()}</td>
-                        <td><span class="badge ${statusClass}">${sale.status}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-secondary" onclick="editSale(${sale.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteSale(${sale.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function openSaleModal(saleId = null) {
-            const modal = document.getElementById('sale-modal');
-            const productSelect = document.getElementById('sale-product');
-            
-            // Load products
-            productSelect.innerHTML = '<option value="">Seleccionar producto</option>' +
-                products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} - $${p.price}</option>`).join('');
-
-            if (saleId) {
-                const sale = sales.find(s => s.id === saleId);
-                if (sale) {
-                    document.getElementById('sale-customer').value = sale.customer;
-                    document.getElementById('sale-phone').value = sale.phone || '';
-                    document.getElementById('sale-product').value = sale.product_id;
-                    document.getElementById('sale-quantity').value = sale.quantity;
-                    document.getElementById('sale-price').value = sale.price;
-                    document.getElementById('sale-status').value = sale.status;
-                    document.getElementById('sale-notes').value = sale.notes || '';
-                }
-            } else {
-                document.getElementById('sale-form').reset();
-                document.getElementById('sale-quantity').value = 1;
-            }
-
-            modal.classList.add('active');
-        }
-
-        function saveSale() {
-            const saleData = {
-                customer: document.getElementById('sale-customer').value,
-                phone: document.getElementById('sale-phone').value,
-                product_id: parseInt(document.getElementById('sale-product').value),
-                quantity: parseInt(document.getElementById('sale-quantity').value),
-                price: parseFloat(document.getElementById('sale-price').value),
-                status: document.getElementById('sale-status').value,
-                notes: document.getElementById('sale-notes').value,
-                date: new Date().toISOString()
-            };
-
-            saleData.id = Date.now();
-            sales.push(saleData);
-
-            localStorage.setItem('admin_sales', JSON.stringify(sales));
-            closeModal('sale-modal');
-            renderSales();
-            loadDashboard();
-        }
-
-        function deleteSale(id) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
-                sales = sales.filter(s => s.id !== id);
-                localStorage.setItem('admin_sales', JSON.stringify(sales));
-                renderSales();
-                loadDashboard();
-            }
-        }
-
-        // Modal management
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Navigation
-            document.querySelectorAll('.nav-item[data-page]').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    showPage(this.dataset.page);
-                });
-            });
-
-            // Search
-            document.getElementById('products-search').addEventListener('input', renderProducts);
-            document.getElementById('products-category-filter').addEventListener('change', renderProducts);
-
-            // Product price auto-fill
-            document.getElementById('sale-product').addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption.dataset.price) {
-                    document.getElementById('sale-price').value = selectedOption.dataset.price;
-                }
-            });
-
-            // Load initial data
-            loadDashboard();
-        });
-
-        // Click outside modal to close
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal-overlay')) {
-                e.target.classList.remove('active');
-            }
-        });
-    </script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/admin-data.js"></script>
+    <script src="js/admin-ui.js"></script>
+    <script src="js/admin-data.js"></script>
+    <script src="js/admin-init.js"></script>
 </body>
 </html>
