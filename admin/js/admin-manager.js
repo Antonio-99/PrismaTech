@@ -687,6 +687,115 @@ class AdminManager {
     }
 
     /**
+ * Toggle sidebar en móvil
+ */
+toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('mobile-open');
+    }
+}
+
+/**
+ * Cerrar sesión
+ */
+logout() {
+    if (confirm('¿Seguro que quieres cerrar sesión?')) {
+        window.location.href = '../public/index.html';
+    }
+}
+
+/**
+ * Importar productos
+ */
+importProducts() {
+    alert('Función de importación en desarrollo');
+}
+
+/**
+ * Ajustar inventario
+ */
+adjustInventory() {
+    alert('Función de ajuste de inventario en desarrollo');
+}
+
+/**
+ * Abrir modal de cliente
+ */
+openCustomerModal() {
+    alert('Modal de clientes en desarrollo');
+}
+
+/**
+ * Exportar datos
+ */
+exportData() {
+    const data = {
+        products: this.products,
+        categories: this.categories,
+        sales: this.sales
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], 
+        { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'prismatech-backup.json';
+    a.click();
+}
+
+/**
+ * Generar reporte
+ */
+generateReport() {
+    alert('Función de reportes en desarrollo');
+}
+
+/**
+ * Respaldar datos
+ */
+backupData() {
+    this.exportData();
+}
+
+/**
+ * Restaurar datos
+ */
+restoreData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.products) this.products = data.products;
+                    if (data.categories) this.categories = data.categories;
+                    if (data.sales) this.sales = data.sales;
+                    this.saveData();
+                    this.loadPageData(this.currentPage);
+                    alert('Datos restaurados exitosamente');
+                } catch (error) {
+                    alert('Error al leer el archivo');
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+    input.click();
+}
+
+/**
+ * Resetear datos
+ */
+resetData() {
+    this.clearAllData();
+}
+
+    /**
      * Limpiar todos los datos
      */
     clearAllData() {
