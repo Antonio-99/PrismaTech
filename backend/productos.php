@@ -5,7 +5,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Manejar preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
@@ -20,8 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 LEFT JOIN categorias c ON p.categoria_id = c.id
                 ORDER BY p.fecha_creacion DESC";
         $result = $conn->query($sql);
+        
+        if (!$result) {
+            throw new Exception("Error en consulta: " . $conn->error);
+        }
+        
         $productos = [];
-
         while ($row = $result->fetch_assoc()) {
             $productos[] = [
                 'id' => (int)$row['id'],
@@ -34,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'stock' => (int)$row['stock'],
                 'min_stock' => (int)$row['stock_minimo'],
                 'status' => $row['estado'],
-                'icon' => $row['icono'],
+                'icon' => $row['icono'] ?: 'fas fa-cube',
                 'category_id' => (int)$row['categoria_id'],
                 'category_name' => $row['categoria_nombre'],
                 'category_icon' => $row['categoria_icono'],
@@ -42,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'created_at' => $row['fecha_creacion']
             ];
         }
-        echo json_encode($productos);
+        echo json_encode($productos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Error al obtener productos: ' . $e->getMessage()]);
@@ -54,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $data = json_decode(file_get_contents("php://input"), true);
         
-        // Validar datos requeridos
         if (empty($data['name']) || empty($data['sku']) || !isset($data['price']) || empty($data['category_id'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Faltan campos requeridos']);

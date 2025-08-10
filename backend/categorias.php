@@ -5,7 +5,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Manejar preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
@@ -21,19 +20,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 GROUP BY c.id 
                 ORDER BY c.nombre";
         $result = $conn->query($sql);
+        
+        if (!$result) {
+            throw new Exception("Error en consulta: " . $conn->error);
+        }
+        
         $categorias = [];
-
         while ($row = $result->fetch_assoc()) {
             $categorias[] = [
                 'id' => (int)$row['id'],
                 'name' => $row['nombre'],
                 'description' => $row['descripcion'],
-                'icon' => $row['icono'],
+                'icon' => $row['icono'] ?: 'fas fa-tag',
                 'products_count' => (int)$row['productos_count'],
                 'created_at' => $row['fecha_creacion']
             ];
         }
-        echo json_encode($categorias);
+        echo json_encode($categorias, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Error al obtener categorías: ' . $e->getMessage()]);

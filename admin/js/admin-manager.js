@@ -4,7 +4,7 @@
  */
 class AdminManager {
     constructor() {
-        this.baseURL = '../backend';
+        this.baseURL = 'http://localhost:8080/prismatech/backend';
         this.products = [];
         this.categories = [];
         this.sales = [];

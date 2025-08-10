@@ -1,18 +1,15 @@
 /**
  * DataStore - Gestión centralizada de datos
- * Versión conectada a API PHP
+ * Versión final para puerto 8080
  */
 class DataStore {
     constructor() {
-        this.baseURL = '../backend';
+        this.baseURL = 'http://localhost:8080/prismatech/backend';
         this.categories = [];
         this.products = [];
         this.loadFromAPI();
     }
 
-    /**
-     * Hacer petición a la API
-     */
     async apiRequest(endpoint, method = 'GET', data = null) {
         try {
             const config = {
@@ -26,25 +23,26 @@ class DataStore {
                 config.body = JSON.stringify(data);
             }
 
+            console.log(`🔄 API Request: ${method} ${this.baseURL}/${endpoint}`);
             const response = await fetch(`${this.baseURL}/${endpoint}`, config);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            return await response.json();
+            const result = await response.json();
+            console.log(`✅ API Response: ${endpoint}`, result);
+            return result;
         } catch (error) {
-            console.error('Error en API request:', error);
+            console.error(`❌ API Error: ${endpoint}`, error);
             throw error;
         }
     }
 
-    /**
-     * Carga los datos desde la API
-     */
     async loadFromAPI() {
         try {
-            // Cargar en paralelo para mejor rendimiento
+            console.log('🚀 Cargando datos desde API...');
+            
             const [categoriesData, productsData] = await Promise.all([
                 this.apiRequest('categorias.php'),
                 this.apiRequest('productos.php')
@@ -53,18 +51,21 @@ class DataStore {
             this.categories = categoriesData;
             this.products = productsData;
 
-            // Disparar evento personalizado cuando los datos estén listos
+            console.log('✅ Datos cargados:', {
+                categories: this.categories.length,
+                products: this.products.length
+            });
+
             document.dispatchEvent(new CustomEvent('dataLoaded', {
                 detail: { categories: this.categories, products: this.products }
             }));
 
         } catch (error) {
-            console.error('Error al cargar datos desde la API:', error);
+            console.error('❌ Error cargando desde API:', error);
+            console.log('🔄 Usando datos de fallback...');
             
-            // Fallback a datos de ejemplo si la API falla
             this.loadFallbackData();
             
-            // Disparar evento con datos de fallback
             document.dispatchEvent(new CustomEvent('dataLoaded', {
                 detail: { 
                     categories: this.categories, 
@@ -75,9 +76,6 @@ class DataStore {
         }
     }
 
-    /**
-     * Datos de fallback si la API no está disponible
-     */
     loadFallbackData() {
         this.categories = [
             { id: 1, name: "Pantallas", description: "Displays LCD, LED, OLED", icon: "fas fa-tv" },
@@ -124,91 +122,34 @@ class DataStore {
                 category_id: 3,
                 icon: "fas fa-battery-three-quarters",
                 in_stock: true
-            },
-            {
-                id: 4,
-                name: "Cargador Universal 65W",
-                description: "Cargador universal de 65W con 8 conectores diferentes. Compatible con múltiples marcas.",
-                brand: "Universal",
-                sku: "CHG-UNIV-65W",
-                part_number: "UNIV-CHG-65W-MULTI",
-                price: 450.00,
-                category_id: 4,
-                icon: "fas fa-plug",
-                in_stock: true
-            },
-            {
-                id: 5,
-                name: "Memoria RAM DDR4 8GB",
-                description: "Módulo de memoria RAM DDR4 de 8GB a 2400MHz formato SO-DIMM.",
-                brand: "Kingston",
-                sku: "RAM-KING-8GB-DDR4",
-                part_number: "KST-8GB-DDR4-2400",
-                price: 650.00,
-                category_id: 5,
-                icon: "fas fa-memory",
-                in_stock: true
-            },
-            {
-                id: 6,
-                name: "SSD M.2 NVMe 250GB",
-                description: "Disco sólido SSD M.2 NVMe de 250GB. Velocidad de lectura hasta 3,500 MB/s.",
-                brand: "Western Digital",
-                sku: "SSD-WD-250GB-M2",
-                part_number: "WD-250GB-M2-NVMe",
-                price: 850.00,
-                category_id: 6,
-                icon: "fas fa-hdd",
-                in_stock: true
             }
         ];
     }
 
-    /**
-     * Obtiene todas las categorías
-     */
     getCategories() {
         return this.categories;
     }
 
-    /**
-     * Obtiene todos los productos
-     */
     getProducts() {
         return this.products;
     }
 
-    /**
-     * Obtiene una categoría por ID
-     */
     getCategoryById(id) {
         return this.categories.find(cat => cat.id === parseInt(id));
     }
 
-    /**
-     * Obtiene un producto por ID
-     */
     getProductById(id) {
         return this.products.find(prod => prod.id === parseInt(id));
     }
 
-    /**
-     * Obtiene productos por categoría
-     */
     getProductsByCategory(categoryId) {
         return this.products.filter(prod => prod.category_id === parseInt(categoryId));
     }
 
-    /**
-     * Obtiene marcas únicas
-     */
     getUniqueBrands() {
         return [...new Set(this.products.map(p => p.brand).filter(b => b))];
     }
 
-    /**
-     * Filtra productos
-     */
     filterProducts(searchTerm = '', categoryId = '', brand = '') {
         return this.products.filter(product => {
             const matchesSearch = !searchTerm || 
@@ -225,23 +166,14 @@ class DataStore {
         });
     }
 
-    /**
-     * Refrescar datos desde la API
-     */
     async refresh() {
         await this.loadFromAPI();
     }
 
-    /**
-     * Verificar si los datos están cargados
-     */
     isDataLoaded() {
         return this.categories.length > 0 || this.products.length > 0;
     }
 
-    /**
-     * Obtener estadísticas básicas
-     */
     getStats() {
         return {
             totalCategories: this.categories.length,
@@ -257,3 +189,4 @@ class DataStore {
 
 // Crear instancia global
 window.dataStore = new DataStore();
+console.log('🚀 DataStore inicializado para puerto 8080');
