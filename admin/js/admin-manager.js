@@ -1,59 +1,95 @@
 /**
  * AdminManager - Módulo de gestión del panel de administración
- * Maneja todas las operaciones CRUD y la lógica del panel admin
+ * Conectado a APIs PHP del backend
  */
 class AdminManager {
     constructor() {
+        this.baseUrl = '../backend';
         this.products = [];
         this.categories = [];
         this.sales = [];
+        this.customers = [];
         this.currentPage = 'dashboard';
-        
-        // Inicializar datos por defecto
-        this.initializeDefaultData();
-        
-        // Cargar datos del localStorage
-        this.loadData();
         
         // Configurar event listeners
         this.setupEventListeners();
+        
+        // Cargar datos iniciales
+        this.loadAllData();
     }
 
     /**
-     * Inicializar datos por defecto si no existen
+     * Cargar todos los datos desde las APIs
      */
-    initializeDefaultData() {
-        const defaultCategories = [
-            { id: 1, name: "Pantallas", description: "Displays LCD, LED, OLED", icon: "fas fa-tv" },
-            { id: 2, name: "Teclados", description: "Teclados de reemplazo", icon: "fas fa-keyboard" },
-            { id: 3, name: "Baterías", description: "Baterías para laptops", icon: "fas fa-battery-three-quarters" },
-            { id: 4, name: "Cargadores", description: "Adaptadores de corriente", icon: "fas fa-plug" },
-            { id: 5, name: "Memorias", description: "RAM DDR3, DDR4, DDR5", icon: "fas fa-memory" },
-            { id: 6, name: "Almacenamiento", description: "SSD, HDD, M.2 NVMe", icon: "fas fa-hdd" }
-        ];
-
-        // Solo inicializar si no hay datos previos
-        if (!localStorage.getItem('admin_categories')) {
-            localStorage.setItem('admin_categories', JSON.stringify(defaultCategories));
+    async loadAllData() {
+        try {
+            await Promise.all([
+                this.loadCategoriesFromAPI(),
+                this.loadProductsFromAPI(),
+                this.loadCustomersFromAPI(),
+                this.loadSalesFromAPI()
+            ]);
+            console.log('✅ Datos cargados desde APIs');
+        } catch (error) {
+            console.error('❌ Error cargando datos:', error);
+            this.showToast('Error cargando datos del servidor', 'error');
         }
     }
 
     /**
-     * Cargar datos del localStorage
+     * Cargar categorías desde API
      */
-    loadData() {
-        this.products = JSON.parse(localStorage.getItem('admin_products')) || [];
-        this.categories = JSON.parse(localStorage.getItem('admin_categories')) || [];
-        this.sales = JSON.parse(localStorage.getItem('admin_sales')) || [];
+    async loadCategoriesFromAPI() {
+        try {
+            const response = await fetch(`${this.baseUrl}/categorias.php`);
+            if (!response.ok) throw new Error('Error en API categorías');
+            this.categories = await response.json();
+        } catch (error) {
+            console.error('Error cargando categorías:', error);
+            this.categories = [];
+        }
     }
 
     /**
-     * Guardar datos en localStorage
+     * Cargar productos desde API
      */
-    saveData() {
-        localStorage.setItem('admin_products', JSON.stringify(this.products));
-        localStorage.setItem('admin_categories', JSON.stringify(this.categories));
-        localStorage.setItem('admin_sales', JSON.stringify(this.sales));
+    async loadProductsFromAPI() {
+        try {
+            const response = await fetch(`${this.baseUrl}/productos.php`);
+            if (!response.ok) throw new Error('Error en API productos');
+            this.products = await response.json();
+        } catch (error) {
+            console.error('Error cargando productos:', error);
+            this.products = [];
+        }
+    }
+
+    /**
+     * Cargar clientes desde API
+     */
+    async loadCustomersFromAPI() {
+        try {
+            const response = await fetch(`${this.baseUrl}/clientes.php`);
+            if (!response.ok) throw new Error('Error en API clientes');
+            this.customers = await response.json();
+        } catch (error) {
+            console.error('Error cargando clientes:', error);
+            this.customers = [];
+        }
+    }
+
+    /**
+     * Cargar ventas desde API
+     */
+    async loadSalesFromAPI() {
+        try {
+            const response = await fetch(`${this.baseUrl}/ventas.php`);
+            if (!response.ok) throw new Error('Error en API ventas');
+            this.sales = await response.json();
+        } catch (error) {
+            console.error('Error cargando ventas:', error);
+            this.sales = [];
+        }
     }
 
     /**
@@ -79,38 +115,24 @@ class AdminManager {
             productsCategoryFilter.addEventListener('change', () => this.renderProducts());
         }
 
-        // Product price auto-fill in sales
-        const saleProduct = document.getElementById('sale-product');
-        if (saleProduct) {
-            saleProduct.addEventListener('change', () => {
-                const selectedOption = saleProduct.options[saleProduct.selectedIndex];
-                if (selectedOption.dataset.price) {
-                    document.getElementById('sale-price').value = selectedOption.dataset.price;
-                }
-            });
-        }
-
-        // Modal close on outside click
+        // Modal close functionality
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal-overlay')) {
                 e.target.classList.remove('active');
             }
         });
 
-        // Form submissions
-        this.setupFormListeners();
+        // Date display
+        this.updateCurrentDate();
     }
 
     /**
-     * Configurar listeners para formularios
+     * Actualizar fecha actual
      */
-    setupFormListeners() {
-        const companyForm = document.getElementById('company-form');
-        if (companyForm) {
-            companyForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveCompanySettings();
-            });
+    updateCurrentDate() {
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            dateElement.textContent = new Date().toLocaleDateString('es-MX');
         }
     }
 
@@ -141,8 +163,6 @@ class AdminManager {
         }
 
         this.currentPage = pageId;
-
-        // Cargar datos de la página
         this.loadPageData(pageId);
     }
 
@@ -163,6 +183,9 @@ class AdminManager {
             case 'sales':
                 this.loadSales();
                 break;
+            case 'customers':
+                this.loadCustomers();
+                break;
         }
     }
 
@@ -170,37 +193,28 @@ class AdminManager {
     // DASHBOARD
     // ===========================================
 
-    /**
-     * Cargar datos del dashboard
-     */
     loadDashboard() {
         document.getElementById('total-products').textContent = this.products.length;
         document.getElementById('total-categories').textContent = this.categories.length;
-        document.getElementById('total-sales').textContent = this.sales.length;
+        document.getElementById('total-quotes').textContent = this.sales.filter(s => s.estado === 'cotizacion').length;
+        document.getElementById('total-customers').textContent = this.customers.length;
     }
 
     // ===========================================
     // GESTIÓN DE PRODUCTOS
     // ===========================================
 
-    /**
-     * Cargar página de productos
-     */
     loadProducts() {
         const categoryFilter = document.getElementById('products-category-filter');
         
-        // Cargar filtro de categorías
         if (categoryFilter) {
             categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' +
-                this.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+                this.categories.map(cat => `<option value="${cat.id}">${cat.nombre}</option>`).join('');
         }
 
         this.renderProducts();
     }
 
-    /**
-     * Renderizar lista de productos
-     */
     renderProducts() {
         const tbody = document.getElementById('products-table');
         if (!tbody) return;
@@ -213,10 +227,9 @@ class AdminManager {
 
         let filteredProducts = this.products.filter(product => {
             const matchesSearch = !searchTerm || 
-                product.name.toLowerCase().includes(searchTerm) ||
-                product.sku.toLowerCase().includes(searchTerm) ||
-                (product.part_number && product.part_number.toLowerCase().includes(searchTerm));
-            const matchesCategory = !categoryFilterValue || product.category_id == categoryFilterValue;
+                product.nombre.toLowerCase().includes(searchTerm) ||
+                product.sku.toLowerCase().includes(searchTerm);
+            const matchesCategory = !categoryFilterValue || product.categoria_id == categoryFilterValue;
             return matchesSearch && matchesCategory;
         });
 
@@ -233,17 +246,20 @@ class AdminManager {
         }
 
         tbody.innerHTML = filteredProducts.map(product => {
-            const category = this.categories.find(c => c.id === product.category_id);
+            const statusBadge = product.estado === 'active' ? 
+                '<span class="badge badge-success">Activo</span>' : 
+                '<span class="badge badge-warning">Inactivo</span>';
+            
             return `
                 <tr>
                     <td>
-                        <div><strong>${product.name}</strong></div>
-                        <small style="color: var(--gray-500);">${product.brand || ''}</small>
+                        <div><strong>${product.nombre}</strong></div>
+                        <small style="color: var(--gray-500);">${product.descripcion || ''}</small>
                     </td>
-                    <td>${category ? category.name : 'Sin categoría'}</td>
-                    <td>$${product.price.toLocaleString()}</td>
+                    <td>${product.categoria || 'Sin categoría'}</td>
                     <td><code>${product.sku}</code></td>
-                    <td><span class="badge badge-success">Activo</span></td>
+                    <td>${product.stock || 0}</td>
+                    <td>${statusBadge}</td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="adminManager.editProduct(${product.id})">
                             <i class="fas fa-edit"></i>
@@ -255,20 +271,23 @@ class AdminManager {
                 </tr>
             `;
         }).join('');
+
+        // Actualizar contador
+        const countElement = document.getElementById('products-count');
+        if (countElement) {
+            countElement.textContent = `${filteredProducts.length} productos`;
+        }
     }
 
-    /**
-     * Abrir modal de producto
-     */
     openProductModal(productId = null) {
+        this.createProductModal();
         const modal = document.getElementById('product-modal');
-        const form = document.getElementById('product-form');
         const categorySelect = document.getElementById('product-category');
         
         // Cargar categorías
         if (categorySelect) {
             categorySelect.innerHTML = '<option value="">Seleccionar categoría</option>' +
-                this.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+                this.categories.map(cat => `<option value="${cat.id}">${cat.nombre}</option>`).join('');
         }
 
         if (productId) {
@@ -276,82 +295,102 @@ class AdminManager {
             if (product) {
                 document.getElementById('product-modal-title').textContent = 'Editar Producto';
                 document.getElementById('product-id').value = product.id;
-                document.getElementById('product-name').value = product.name;
-                document.getElementById('product-category').value = product.category_id;
-                document.getElementById('product-brand').value = product.brand || '';
+                document.getElementById('product-name').value = product.nombre;
+                document.getElementById('product-category').value = product.categoria_id;
                 document.getElementById('product-sku').value = product.sku;
-                document.getElementById('product-part-number').value = product.part_number || '';
-                document.getElementById('product-price').value = product.price;
-                document.getElementById('product-description').value = product.description || '';
-                document.getElementById('product-icon').value = product.icon || '';
+                document.getElementById('product-price').value = product.precio;
+                document.getElementById('product-stock').value = product.stock;
+                document.getElementById('product-min-stock').value = product.stock_minimo;
+                document.getElementById('product-description').value = product.descripcion || '';
             }
         } else {
             document.getElementById('product-modal-title').textContent = 'Nuevo Producto';
-            if (form) form.reset();
+            document.getElementById('product-form').reset();
             document.getElementById('product-id').value = '';
         }
 
-        if (modal) {
-            modal.classList.add('active');
-        }
+        modal.classList.add('active');
     }
 
-    /**
-     * Guardar producto
-     */
-    saveProduct() {
+    async saveProduct() {
         const id = document.getElementById('product-id').value;
         const productData = {
-            name: document.getElementById('product-name').value,
-            category_id: parseInt(document.getElementById('product-category').value),
-            brand: document.getElementById('product-brand').value,
+            nombre: document.getElementById('product-name').value,
+            categoria_id: parseInt(document.getElementById('product-category').value),
             sku: document.getElementById('product-sku').value,
-            part_number: document.getElementById('product-part-number').value,
-            price: parseFloat(document.getElementById('product-price').value),
-            description: document.getElementById('product-description').value,
-            icon: document.getElementById('product-icon').value || 'fas fa-cube'
+            precio: parseFloat(document.getElementById('product-price').value),
+            stock: parseInt(document.getElementById('product-stock').value),
+            stock_minimo: parseInt(document.getElementById('product-min-stock').value),
+            descripcion: document.getElementById('product-description').value,
+            estado: 'active'
         };
 
-        // Validación básica
-        if (!productData.name || !productData.category_id || !productData.sku || !productData.price) {
-            alert('Por favor completa todos los campos requeridos.');
+        if (!productData.nombre || !productData.categoria_id || !productData.sku || !productData.precio) {
+            this.showToast('Por favor completa todos los campos requeridos', 'warning');
             return;
         }
 
-        if (id) {
-            // Editar producto existente
-            const index = this.products.findIndex(p => p.id == id);
-            if (index !== -1) {
-                this.products[index] = { ...this.products[index], ...productData };
+        try {
+            let response;
+            if (id) {
+                // Actualizar producto existente
+                productData.id = id;
+                response = await fetch(`${this.baseUrl}/productos.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(productData)
+                });
+            } else {
+                // Crear nuevo producto
+                response = await fetch(`${this.baseUrl}/productos.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(productData)
+                });
             }
-        } else {
-            // Crear nuevo producto
-            productData.id = Date.now();
-            this.products.push(productData);
-        }
 
-        this.saveData();
-        this.closeModal('product-modal');
-        this.renderProducts();
-        this.loadDashboard();
+            if (!response.ok) throw new Error('Error al guardar producto');
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showToast(id ? 'Producto actualizado' : 'Producto creado', 'success');
+                this.closeModal('product-modal');
+                await this.loadProductsFromAPI();
+                this.renderProducts();
+                this.loadDashboard();
+            }
+        } catch (error) {
+            console.error('Error guardando producto:', error);
+            this.showToast('Error al guardar producto', 'error');
+        }
     }
 
-    /**
-     * Editar producto
-     */
     editProduct(id) {
         this.openProductModal(id);
     }
 
-    /**
-     * Eliminar producto
-     */
-    deleteProduct(id) {
-        if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-            this.products = this.products.filter(p => p.id !== id);
-            this.saveData();
-            this.renderProducts();
-            this.loadDashboard();
+    async deleteProduct(id) {
+        if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) return;
+
+        try {
+            const response = await fetch(`${this.baseUrl}/productos.php`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+
+            if (!response.ok) throw new Error('Error al eliminar producto');
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showToast('Producto eliminado', 'success');
+                await this.loadProductsFromAPI();
+                this.renderProducts();
+                this.loadDashboard();
+            }
+        } catch (error) {
+            console.error('Error eliminando producto:', error);
+            this.showToast('Error al eliminar producto', 'error');
         }
     }
 
@@ -359,31 +398,20 @@ class AdminManager {
     // GESTIÓN DE CATEGORÍAS
     // ===========================================
 
-    /**
-     * Cargar página de categorías
-     */
     loadCategories() {
         this.renderCategories();
     }
 
-    /**
-     * Renderizar lista de categorías
-     */
     renderCategories() {
         const tbody = document.getElementById('categories-table');
         if (!tbody) return;
         
         tbody.innerHTML = this.categories.map(category => {
-            const productCount = this.products.filter(p => p.category_id === category.id).length;
+            const productCount = this.products.filter(p => p.categoria_id === category.id).length;
             return `
                 <tr>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="${category.icon}" style="color: var(--primary-blue);"></i>
-                            <strong>${category.name}</strong>
-                        </div>
-                    </td>
-                    <td>${category.description}</td>
+                    <td><strong>${category.nombre}</strong></td>
+                    <td>${category.descripcion || ''}</td>
                     <td>${productCount} productos</td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="adminManager.editCategory(${category.id})">
@@ -398,88 +426,232 @@ class AdminManager {
         }).join('');
     }
 
-    /**
-     * Abrir modal de categoría
-     */
     openCategoryModal(categoryId = null) {
+        this.createCategoryModal();
         const modal = document.getElementById('category-modal');
-        const form = document.getElementById('category-form');
         
         if (categoryId) {
             const category = this.categories.find(c => c.id === categoryId);
             if (category) {
                 document.getElementById('category-modal-title').textContent = 'Editar Categoría';
                 document.getElementById('category-id').value = category.id;
-                document.getElementById('category-name').value = category.name;
-                document.getElementById('category-description').value = category.description;
-                document.getElementById('category-icon').value = category.icon;
+                document.getElementById('category-name').value = category.nombre;
+                document.getElementById('category-description').value = category.descripcion || '';
             }
         } else {
             document.getElementById('category-modal-title').textContent = 'Nueva Categoría';
-            if (form) form.reset();
+            document.getElementById('category-form').reset();
             document.getElementById('category-id').value = '';
         }
 
-        if (modal) {
-            modal.classList.add('active');
-        }
+        modal.classList.add('active');
     }
 
-    /**
-     * Guardar categoría
-     */
-    saveCategory() {
+    async saveCategory() {
         const id = document.getElementById('category-id').value;
         const categoryData = {
-            name: document.getElementById('category-name').value,
-            description: document.getElementById('category-description').value,
-            icon: document.getElementById('category-icon').value || 'fas fa-tag'
+            nombre: document.getElementById('category-name').value,
+            descripcion: document.getElementById('category-description').value
         };
 
-        // Validación básica
-        if (!categoryData.name) {
-            alert('Por favor ingresa el nombre de la categoría.');
+        if (!categoryData.nombre) {
+            this.showToast('Por favor ingresa el nombre de la categoría', 'warning');
             return;
         }
 
-        if (id) {
-            const index = this.categories.findIndex(c => c.id == id);
-            if (index !== -1) {
-                this.categories[index] = { ...this.categories[index], ...categoryData };
+        try {
+            let response;
+            if (id) {
+                categoryData.id = id;
+                response = await fetch(`${this.baseUrl}/categorias.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(categoryData)
+                });
+            } else {
+                response = await fetch(`${this.baseUrl}/categorias.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(categoryData)
+                });
             }
-        } else {
-            categoryData.id = Date.now();
-            this.categories.push(categoryData);
-        }
 
-        this.saveData();
-        this.closeModal('category-modal');
-        this.renderCategories();
-        this.loadDashboard();
+            if (!response.ok) throw new Error('Error al guardar categoría');
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showToast(id ? 'Categoría actualizada' : 'Categoría creada', 'success');
+                this.closeModal('category-modal');
+                await this.loadCategoriesFromAPI();
+                this.renderCategories();
+                this.loadDashboard();
+            }
+        } catch (error) {
+            console.error('Error guardando categoría:', error);
+            this.showToast('Error al guardar categoría', 'error');
+        }
     }
 
-    /**
-     * Editar categoría
-     */
     editCategory(id) {
         this.openCategoryModal(id);
     }
 
-    /**
-     * Eliminar categoría
-     */
-    deleteCategory(id) {
-        const productCount = this.products.filter(p => p.category_id === id).length;
+    async deleteCategory(id) {
+        const productCount = this.products.filter(p => p.categoria_id === id).length;
         if (productCount > 0) {
-            alert('No se puede eliminar esta categoría porque tiene productos asociados.');
+            this.showToast('No se puede eliminar esta categoría porque tiene productos asociados', 'warning');
             return;
         }
         
-        if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
-            this.categories = this.categories.filter(c => c.id !== id);
-            this.saveData();
-            this.renderCategories();
-            this.loadDashboard();
+        if (!confirm('¿Estás seguro de que quieres eliminar esta categoría?')) return;
+
+        try {
+            const response = await fetch(`${this.baseUrl}/categorias.php`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+
+            if (!response.ok) throw new Error('Error al eliminar categoría');
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showToast('Categoría eliminada', 'success');
+                await this.loadCategoriesFromAPI();
+                this.renderCategories();
+                this.loadDashboard();
+            }
+        } catch (error) {
+            console.error('Error eliminando categoría:', error);
+            this.showToast('Error al eliminar categoría', 'error');
+        }
+    }
+
+    // ===========================================
+    // GESTIÓN DE CLIENTES
+    // ===========================================
+
+    loadCustomers() {
+        this.renderCustomers();
+    }
+
+    renderCustomers() {
+        const tbody = document.getElementById('customers-table');
+        if (!tbody) return;
+        
+        tbody.innerHTML = this.customers.map(customer => `
+            <tr>
+                <td><strong>${customer.nombre}</strong></td>
+                <td>${customer.email || ''}</td>
+                <td>${customer.telefono || ''}</td>
+                <td>-</td>
+                <td>-</td>
+                <td>
+                    <button class="btn btn-sm btn-secondary" onclick="adminManager.editCustomer(${customer.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="adminManager.deleteCustomer(${customer.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    openCustomerModal(customerId = null) {
+        this.createCustomerModal();
+        const modal = document.getElementById('customer-modal');
+        
+        if (customerId) {
+            const customer = this.customers.find(c => c.id === customerId);
+            if (customer) {
+                document.getElementById('customer-modal-title').textContent = 'Editar Cliente';
+                document.getElementById('customer-id').value = customer.id;
+                document.getElementById('customer-name').value = customer.nombre;
+                document.getElementById('customer-email').value = customer.email || '';
+                document.getElementById('customer-phone').value = customer.telefono || '';
+            }
+        } else {
+            document.getElementById('customer-modal-title').textContent = 'Nuevo Cliente';
+            document.getElementById('customer-form').reset();
+            document.getElementById('customer-id').value = '';
+        }
+
+        modal.classList.add('active');
+    }
+
+    async saveCustomer() {
+        const id = document.getElementById('customer-id').value;
+        const customerData = {
+            nombre: document.getElementById('customer-name').value,
+            email: document.getElementById('customer-email').value,
+            telefono: document.getElementById('customer-phone').value
+        };
+
+        if (!customerData.nombre) {
+            this.showToast('Por favor ingresa el nombre del cliente', 'warning');
+            return;
+        }
+
+        try {
+            let response;
+            if (id) {
+                customerData.id = id;
+                response = await fetch(`${this.baseUrl}/clientes.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(customerData)
+                });
+            } else {
+                response = await fetch(`${this.baseUrl}/clientes.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(customerData)
+                });
+            }
+
+            if (!response.ok) throw new Error('Error al guardar cliente');
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showToast(id ? 'Cliente actualizado' : 'Cliente creado', 'success');
+                this.closeModal('customer-modal');
+                await this.loadCustomersFromAPI();
+                this.renderCustomers();
+                this.loadDashboard();
+            }
+        } catch (error) {
+            console.error('Error guardando cliente:', error);
+            this.showToast('Error al guardar cliente', 'error');
+        }
+    }
+
+    editCustomer(id) {
+        this.openCustomerModal(id);
+    }
+
+    async deleteCustomer(id) {
+        if (!confirm('¿Estás seguro de que quieres eliminar este cliente?')) return;
+
+        try {
+            const response = await fetch(`${this.baseUrl}/clientes.php`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+
+            if (!response.ok) throw new Error('Error al eliminar cliente');
+            
+            const result = await response.json();
+            if (result.success) {
+                this.showToast('Cliente eliminado', 'success');
+                await this.loadCustomersFromAPI();
+                this.renderCustomers();
+                this.loadDashboard();
+            }
+        } catch (error) {
+            console.error('Error eliminando cliente:', error);
+            this.showToast('Error al eliminar cliente', 'error');
         }
     }
 
@@ -487,16 +659,10 @@ class AdminManager {
     // GESTIÓN DE VENTAS
     // ===========================================
 
-    /**
-     * Cargar página de ventas
-     */
     loadSales() {
         this.renderSales();
     }
 
-    /**
-     * Renderizar lista de ventas
-     */
     renderSales() {
         const tbody = document.getElementById('sales-table');
         if (!tbody) return;
@@ -504,7 +670,7 @@ class AdminManager {
         if (this.sales.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="empty-state">
+                    <td colspan="6" class="empty-state">
                         <i class="fas fa-shopping-cart"></i>
                         <div>No hay ventas registradas</div>
                     </td>
@@ -514,27 +680,19 @@ class AdminManager {
         }
 
         tbody.innerHTML = this.sales.map(sale => {
-            const product = this.products.find(p => p.id === sale.product_id);
-            const statusClass = sale.status === 'vendido' ? 'badge-success' : 
-                              sale.status === 'entregado' ? 'badge-success' : 'badge-warning';
+            const statusClass = sale.estado === 'vendido' ? 'badge-success' : 
+                              sale.estado === 'entregado' ? 'badge-success' : 'badge-warning';
             
             return `
                 <tr>
-                    <td>${new Date(sale.date).toLocaleDateString()}</td>
+                    <td>${new Date(sale.fecha).toLocaleDateString('es-MX')}</td>
+                    <td><strong>${sale.cliente || 'Cliente no especificado'}</strong></td>
+                    <td>-</td>
+                    <td>$${parseFloat(sale.total || 0).toLocaleString('es-MX')}</td>
+                    <td><span class="badge ${statusClass}">${sale.estado}</span></td>
                     <td>
-                        <div><strong>${sale.customer}</strong></div>
-                        <small style="color: var(--gray-500);">${sale.phone || ''}</small>
-                    </td>
-                    <td>${product ? product.name : 'Producto eliminado'}</td>
-                    <td>${sale.quantity}</td>
-                    <td>$${(sale.price * sale.quantity).toLocaleString()}</td>
-                    <td><span class="badge ${statusClass}">${sale.status}</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="adminManager.editSale(${sale.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="adminManager.deleteSale(${sale.id})">
-                            <i class="fas fa-trash"></i>
+                        <button class="btn btn-sm btn-info" onclick="adminManager.viewSale(${sale.id})">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </td>
                 </tr>
@@ -542,110 +700,206 @@ class AdminManager {
         }).join('');
     }
 
-    /**
-     * Abrir modal de venta
-     */
-    openSaleModal(saleId = null) {
+    openSaleModal() {
+        this.createSaleModal();
         const modal = document.getElementById('sale-modal');
-        const productSelect = document.getElementById('sale-product');
+        modal.classList.add('active');
+    }
+
+    viewSale(id) {
+        const sale = this.sales.find(s => s.id === id);
+        if (sale) {
+            alert(`Venta ID: ${sale.id}\nCliente: ${sale.cliente}\nTotal: $${sale.total}\nEstado: ${sale.estado}`);
+        }
+    }
+
+    // ===========================================
+    // MODALES
+    // ===========================================
+
+    createProductModal() {
+        if (document.getElementById('product-modal')) return;
         
-        // Cargar productos
-        if (productSelect) {
-            productSelect.innerHTML = '<option value="">Seleccionar producto</option>' +
-                this.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.name} - $${p.price}</option>`).join('');
-        }
-
-        if (saleId) {
-            const sale = this.sales.find(s => s.id === saleId);
-            if (sale) {
-                document.getElementById('sale-customer').value = sale.customer;
-                document.getElementById('sale-phone').value = sale.phone || '';
-                document.getElementById('sale-product').value = sale.product_id;
-                document.getElementById('sale-quantity').value = sale.quantity;
-                document.getElementById('sale-price').value = sale.price;
-                document.getElementById('sale-status').value = sale.status;
-                document.getElementById('sale-notes').value = sale.notes || '';
-            }
-        } else {
-            const form = document.getElementById('sale-form');
-            if (form) form.reset();
-            document.getElementById('sale-quantity').value = 1;
-        }
-
-        if (modal) {
-            modal.classList.add('active');
-        }
+        const modalHTML = `
+            <div class="modal-overlay" id="product-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="product-modal-title">Nuevo Producto</h2>
+                        <button class="modal-close" onclick="adminManager.closeModal('product-modal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="product-form" onsubmit="event.preventDefault(); adminManager.saveProduct();">
+                            <input type="hidden" id="product-id">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre del Producto *</label>
+                                    <input type="text" class="form-control" id="product-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Categoría *</label>
+                                    <select class="form-control" id="product-category" required>
+                                        <option value="">Seleccionar categoría</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">SKU *</label>
+                                    <input type="text" class="form-control" id="product-sku" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Precio *</label>
+                                    <input type="number" class="form-control" id="product-price" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Stock</label>
+                                    <input type="number" class="form-control" id="product-stock" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Stock Mínimo</label>
+                                    <input type="number" class="form-control" id="product-min-stock" value="5">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" id="product-description" rows="3"></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('product-modal')">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modals-container').innerHTML += modalHTML;
     }
 
-    /**
-     * Guardar venta
-     */
-    saveSale() {
-        const saleData = {
-            customer: document.getElementById('sale-customer').value,
-            phone: document.getElementById('sale-phone').value,
-            product_id: parseInt(document.getElementById('sale-product').value),
-            quantity: parseInt(document.getElementById('sale-quantity').value),
-            price: parseFloat(document.getElementById('sale-price').value),
-            status: document.getElementById('sale-status').value,
-            notes: document.getElementById('sale-notes').value,
-            date: new Date().toISOString()
-        };
-
-        // Validación básica
-        if (!saleData.customer || !saleData.product_id || !saleData.quantity || !saleData.price) {
-            alert('Por favor completa todos los campos requeridos.');
-            return;
-        }
-
-        saleData.id = Date.now();
-        this.sales.push(saleData);
-
-        this.saveData();
-        this.closeModal('sale-modal');
-        this.renderSales();
-        this.loadDashboard();
+    createCategoryModal() {
+        if (document.getElementById('category-modal')) return;
+        
+        const modalHTML = `
+            <div class="modal-overlay" id="category-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="category-modal-title">Nueva Categoría</h2>
+                        <button class="modal-close" onclick="adminManager.closeModal('category-modal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="category-form" onsubmit="event.preventDefault(); adminManager.saveCategory();">
+                            <input type="hidden" id="category-id">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de la Categoría *</label>
+                                <input type="text" class="form-control" id="category-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" id="category-description" rows="3"></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('category-modal')">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modals-container').innerHTML += modalHTML;
     }
 
-    /**
-     * Editar venta
-     */
-    editSale(id) {
-        this.openSaleModal(id);
+    createCustomerModal() {
+        if (document.getElementById('customer-modal')) return;
+        
+        const modalHTML = `
+            <div class="modal-overlay" id="customer-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="customer-modal-title">Nuevo Cliente</h2>
+                        <button class="modal-close" onclick="adminManager.closeModal('customer-modal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="customer-form" onsubmit="event.preventDefault(); adminManager.saveCustomer();">
+                            <input type="hidden" id="customer-id">
+                            <div class="form-group">
+                                <label class="form-label">Nombre del Cliente *</label>
+                                <input type="text" class="form-control" id="customer-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="customer-email">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="customer-phone">
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('customer-modal')">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modals-container').innerHTML += modalHTML;
     }
 
-    /**
-     * Eliminar venta
-     */
-    deleteSale(id) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
-            this.sales = this.sales.filter(s => s.id !== id);
-            this.saveData();
-            this.renderSales();
-            this.loadDashboard();
-        }
+    createSaleModal() {
+        if (document.getElementById('sale-modal')) return;
+        
+        const modalHTML = `
+            <div class="modal-overlay" id="sale-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Nueva Venta/Cotización</h2>
+                        <button class="modal-close" onclick="adminManager.closeModal('sale-modal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Función de ventas próximamente disponible</p>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('sale-modal')">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modals-container').innerHTML += modalHTML;
     }
 
     // ===========================================
-    // CONFIGURACIÓN
+    // UTILIDADES
     // ===========================================
 
-    /**
-     * Guardar configuración de la empresa
-     */
-    saveCompanySettings() {
-        // Aquí se implementaría la lógica para guardar la configuración
-        // Por ahora solo mostramos una confirmación
-        alert('Configuración guardada exitosamente');
-    }
-
-    // ===========================================
-    // UTILIDADES Y MODALES
-    // ===========================================
-
-    /**
-     * Cerrar modal
-     */
     closeModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -653,56 +907,65 @@ class AdminManager {
         }
     }
 
-    /**
-     * Obtener productos para exportación/API
-     */
-    getProducts() {
-        return this.products;
+    showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info'}"></i>
+            <span>${message}</span>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 4000);
     }
 
-    /**
-     * Obtener categorías para exportación/API
-     */
-    getCategories() {
-        return this.categories;
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('mobile-open');
     }
 
-    /**
-     * Obtener ventas para exportación/API
-     */
-    getSales() {
-        return this.sales;
-    }
-
-    /**
-     * Importar datos (útil para migraciones)
-     */
-    importData(products = null, categories = null, sales = null) {
-        if (products) this.products = products;
-        if (categories) this.categories = categories;
-        if (sales) this.sales = sales;
-        
-        this.saveData();
-        this.loadPageData(this.currentPage);
-    }
-
-    /**
-     * Limpiar todos los datos
-     */
-    clearAllData() {
-        if (confirm('¿Estás seguro de que quieres eliminar todos los datos? Esta acción no se puede deshacer.')) {
-            this.products = [];
-            this.categories = [];
-            this.sales = [];
-            this.saveData();
-            this.initializeDefaultData();
-            this.loadData();
-            this.loadPageData(this.currentPage);
+    logout() {
+        if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+            window.location.href = '../public/index.html';
         }
+    }
+
+    exportData() {
+        this.showToast('Función de exportación próximamente', 'info');
+    }
+
+    importProducts() {
+        this.showToast('Función de importación próximamente', 'info');
+    }
+
+    adjustInventory() {
+        this.showToast('Función de ajuste de inventario próximamente', 'info');
+    }
+
+    generateReport() {
+        this.showToast('Función de reportes próximamente', 'info');
+    }
+
+    backupData() {
+        this.showToast('Función de respaldo próximamente', 'info');
+    }
+
+    restoreData() {
+        this.showToast('Función de restauración próximamente', 'info');
+    }
+
+    resetData() {
+        this.showToast('Función de restablecimiento próximamente', 'info');
     }
 }
 
-// Funciones globales para compatibilidad con el HTML existente
+// Funciones globales para compatibilidad
 window.showPage = (pageId) => window.adminManager.showPage(pageId);
 window.openProductModal = (productId) => window.adminManager.openProductModal(productId);
 window.saveProduct = () => window.adminManager.saveProduct();
@@ -712,10 +975,11 @@ window.openCategoryModal = (categoryId) => window.adminManager.openCategoryModal
 window.saveCategory = () => window.adminManager.saveCategory();
 window.editCategory = (id) => window.adminManager.editCategory(id);
 window.deleteCategory = (id) => window.adminManager.deleteCategory(id);
-window.openSaleModal = (saleId) => window.adminManager.openSaleModal(saleId);
-window.saveSale = () => window.adminManager.saveSale();
-window.editSale = (id) => window.adminManager.editSale(id);
-window.deleteSale = (id) => window.adminManager.deleteSale(id);
+window.openCustomerModal = (customerId) => window.adminManager.openCustomerModal(customerId);
+window.saveCustomer = () => window.adminManager.saveCustomer();
+window.editCustomer = (id) => window.adminManager.editCustomer(id);
+window.deleteCustomer = (id) => window.adminManager.deleteCustomer(id);
+window.openSaleModal = () => window.adminManager.openSaleModal();
 window.closeModal = (modalId) => window.adminManager.closeModal(modalId);
 
 // Inicializar cuando el DOM esté listo

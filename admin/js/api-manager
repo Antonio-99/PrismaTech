@@ -1,0 +1,376 @@
+// admin/js/api-manager.js
+
+/**
+ * ApiManager - Maneja todas las comunicaciones con el backend PHP
+ */
+class ApiManager {
+    constructor() {
+        this.baseUrl = '../backend';
+        this.endpoints = {
+            productos: `${this.baseUrl}/productos.php`,
+            categorias: `${this.baseUrl}/categorias.php`,
+            clientes: `${this.baseUrl}/clientes.php`,
+            ventas: `${this.baseUrl}/ventas.php`,
+            configuracion: `${this.baseUrl}/configuracion.php`,
+            test: `${this.baseUrl}/test-db.php`
+        };
+    }
+
+    /**
+     * Realiza una petición HTTP
+     */
+    async request(url, options = {}) {
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        };
+
+        const requestOptions = { ...defaultOptions, ...options };
+
+        try {
+            console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
+            
+            const response = await fetch(url, requestOptions);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log(`✅ API Response:`, data);
+            
+            return data;
+        } catch (error) {
+            console.error(`❌ API Error (${url}):`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Prueba la conexión con la base de datos
+     */
+    async testConnection() {
+        try {
+            const result = await this.request(this.endpoints.test);
+            return result;
+        } catch (error) {
+            return {
+                success: false,
+                error: error.message,
+                status: 'connection_failed'
+            };
+        }
+    }
+
+    // ===========================================
+    // PRODUCTOS
+    // ===========================================
+
+    /**
+     * Obtiene todos los productos
+     */
+    async getProducts() {
+        return await this.request(this.endpoints.productos);
+    }
+
+    /**
+     * Crea un nuevo producto
+     */
+    async createProduct(productData) {
+        return await this.request(this.endpoints.productos, {
+            method: 'POST',
+            body: JSON.stringify(productData)
+        });
+    }
+
+    /**
+     * Actualiza un producto
+     */
+    async updateProduct(productData) {
+        return await this.request(this.endpoints.productos, {
+            method: 'PUT',
+            body: JSON.stringify(productData)
+        });
+    }
+
+    /**
+     * Elimina un producto
+     */
+    async deleteProduct(productId) {
+        return await this.request(this.endpoints.productos, {
+            method: 'DELETE',
+            body: JSON.stringify({ id: productId })
+        });
+    }
+
+    // ===========================================
+    // CATEGORÍAS
+    // ===========================================
+
+    /**
+     * Obtiene todas las categorías
+     */
+    async getCategories() {
+        return await this.request(this.endpoints.categorias);
+    }
+
+    /**
+     * Crea una nueva categoría
+     */
+    async createCategory(categoryData) {
+        return await this.request(this.endpoints.categorias, {
+            method: 'POST',
+            body: JSON.stringify(categoryData)
+        });
+    }
+
+    /**
+     * Actualiza una categoría
+     */
+    async updateCategory(categoryData) {
+        return await this.request(this.endpoints.categorias, {
+            method: 'PUT',
+            body: JSON.stringify(categoryData)
+        });
+    }
+
+    /**
+     * Elimina una categoría
+     */
+    async deleteCategory(categoryId) {
+        return await this.request(this.endpoints.categorias, {
+            method: 'DELETE',
+            body: JSON.stringify({ id: categoryId })
+        });
+    }
+
+    // ===========================================
+    // CLIENTES
+    // ===========================================
+
+    /**
+     * Obtiene todos los clientes
+     */
+    async getCustomers() {
+        return await this.request(this.endpoints.clientes);
+    }
+
+    /**
+     * Crea un nuevo cliente
+     */
+    async createCustomer(customerData) {
+        return await this.request(this.endpoints.clientes, {
+            method: 'POST',
+            body: JSON.stringify(customerData)
+        });
+    }
+
+    /**
+     * Actualiza un cliente
+     */
+    async updateCustomer(customerData) {
+        return await this.request(this.endpoints.clientes, {
+            method: 'PUT',
+            body: JSON.stringify(customerData)
+        });
+    }
+
+    /**
+     * Elimina un cliente
+     */
+    async deleteCustomer(customerId) {
+        return await this.request(this.endpoints.clientes, {
+            method: 'DELETE',
+            body: JSON.stringify({ id: customerId })
+        });
+    }
+
+    // ===========================================
+    // VENTAS
+    // ===========================================
+
+    /**
+     * Obtiene todas las ventas
+     */
+    async getSales() {
+        return await this.request(this.endpoints.ventas);
+    }
+
+    /**
+     * Crea una nueva venta
+     */
+    async createSale(saleData) {
+        return await this.request(this.endpoints.ventas, {
+            method: 'POST',
+            body: JSON.stringify(saleData)
+        });
+    }
+
+    // ===========================================
+    // CONFIGURACIÓN
+    // ===========================================
+
+    /**
+     * Obtiene la configuración
+     */
+    async getConfiguration() {
+        return await this.request(this.endpoints.configuracion);
+    }
+
+    /**
+     * Actualiza la configuración
+     */
+    async updateConfiguration(configData) {
+        return await this.request(this.endpoints.configuracion, {
+            method: 'PUT',
+            body: JSON.stringify(configData)
+        });
+    }
+
+    // ===========================================
+    // UTILIDADES
+    // ===========================================
+
+    /**
+     * Sincroniza datos con localStorage como respaldo
+     */
+    syncWithLocalStorage(type, data) {
+        const key = `admin_${type}`;
+        localStorage.setItem(key, JSON.stringify(data));
+        console.log(`💾 Sincronizado ${type} con localStorage`);
+    }
+
+    /**
+     * Obtiene datos de localStorage como fallback
+     */
+    getFromLocalStorage(type) {
+        const key = `admin_${type}`;
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : [];
+    }
+
+    /**
+     * Muestra notificación de error
+     */
+    showError(message, error = null) {
+        console.error('API Error:', message, error);
+        
+        // Crear toast de error
+        const toast = this.createToast('error', message);
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    }
+
+    /**
+     * Muestra notificación de éxito
+     */
+    showSuccess(message) {
+        console.log('API Success:', message);
+        
+        // Crear toast de éxito
+        const toast = this.createToast('success', message);
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    /**
+     * Crea un toast de notificación
+     */
+    createToast(type, message) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10000;
+            max-width: 400px;
+            font-weight: 500;
+        `;
+        
+        const icon = type === 'success' ? '✅' : '❌';
+        toast.innerHTML = `${icon} ${message}`;
+        
+        return toast;
+    }
+
+    /**
+     * Convierte datos de formato admin a formato API
+     */
+    formatProductForAPI(productData) {
+        return {
+            id: productData.id || null,
+            nombre: productData.name,
+            descripcion: productData.description || '',
+            sku: productData.sku,
+            precio: productData.price,
+            stock: productData.stock || 0,
+            stock_minimo: productData.stock_minimo || 5,
+            estado: 'active',
+            categoria_id: productData.category_id,
+            marca: productData.brand || '',
+            numero_parte: productData.part_number || '',
+            icono: productData.icon || 'fas fa-cube'
+        };
+    }
+
+    /**
+     * Convierte datos de formato API a formato admin
+     */
+    formatProductFromAPI(apiData) {
+        return {
+            id: parseInt(apiData.id),
+            name: apiData.nombre,
+            description: apiData.descripcion || '',
+            sku: apiData.sku,
+            price: parseFloat(apiData.precio),
+            stock: parseInt(apiData.stock) || 0,
+            stock_minimo: parseInt(apiData.stock_minimo) || 5,
+            category_id: parseInt(apiData.categoria_id),
+            brand: apiData.marca || '',
+            part_number: apiData.numero_parte || '',
+            icon: apiData.icono || 'fas fa-cube',
+            in_stock: (apiData.stock || 0) > 0
+        };
+    }
+
+    /**
+     * Convierte categoría de formato admin a formato API
+     */
+    formatCategoryForAPI(categoryData) {
+        return {
+            id: categoryData.id || null,
+            nombre: categoryData.name,
+            descripcion: categoryData.description || '',
+            icono: categoryData.icon || 'fas fa-tag'
+        };
+    }
+
+    /**
+     * Convierte categoría de formato API a formato admin
+     */
+    formatCategoryFromAPI(apiData) {
+        return {
+            id: parseInt(apiData.id),
+            name: apiData.nombre,
+            description: apiData.descripcion || '',
+            icon: apiData.icono || 'fas fa-tag'
+        };
+    }
+}
+
+// Crear instancia global
+window.apiManager = new ApiManager();
