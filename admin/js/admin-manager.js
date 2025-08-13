@@ -1,112 +1,59 @@
 /**
  * AdminManager - Módulo de gestión del panel de administración
- * Versión conectada a API PHP
+ * Maneja todas las operaciones CRUD y la lógica del panel admin
  */
 class AdminManager {
     constructor() {
-        this.baseURL = 'http://localhost:8080/prismatech/backend';
         this.products = [];
         this.categories = [];
         this.sales = [];
-        this.customers = [];
         this.currentPage = 'dashboard';
         
-        // Cargar datos desde la API
-        this.loadAllData();
+        // Inicializar datos por defecto
+        this.initializeDefaultData();
+        
+        // Cargar datos del localStorage
+        this.loadData();
         
         // Configurar event listeners
         this.setupEventListeners();
     }
 
     /**
-     * Cargar todos los datos desde la API
+     * Inicializar datos por defecto si no existen
      */
-    async loadAllData() {
-        try {
-            await Promise.all([
-                this.fetchCategories(),
-                this.fetchProducts(),
-                this.fetchSales(),
-                this.fetchCustomers()
-            ]);
-            this.loadDashboard();
-        } catch (error) {
-            console.error('Error al cargar datos:', error);
-            this.showToast('Error al cargar datos del servidor', 'error');
+    initializeDefaultData() {
+        const defaultCategories = [
+            { id: 1, name: "Pantallas", description: "Displays LCD, LED, OLED", icon: "fas fa-tv" },
+            { id: 2, name: "Teclados", description: "Teclados de reemplazo", icon: "fas fa-keyboard" },
+            { id: 3, name: "Baterías", description: "Baterías para laptops", icon: "fas fa-battery-three-quarters" },
+            { id: 4, name: "Cargadores", description: "Adaptadores de corriente", icon: "fas fa-plug" },
+            { id: 5, name: "Memorias", description: "RAM DDR3, DDR4, DDR5", icon: "fas fa-memory" },
+            { id: 6, name: "Almacenamiento", description: "SSD, HDD, M.2 NVMe", icon: "fas fa-hdd" }
+        ];
+
+        // Solo inicializar si no hay datos previos
+        if (!localStorage.getItem('admin_categories')) {
+            localStorage.setItem('admin_categories', JSON.stringify(defaultCategories));
         }
     }
 
     /**
-     * Hacer petición a la API
+     * Cargar datos del localStorage
      */
-    async apiRequest(endpoint, method = 'GET', data = null) {
-        const config = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
-
-        if (data) {
-            config.body = JSON.stringify(data);
-        }
-
-        const response = await fetch(`${this.baseURL}/${endpoint}`, config);
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error en la petición');
-        }
-
-        return await response.json();
+    loadData() {
+        this.products = JSON.parse(localStorage.getItem('admin_products')) || [];
+        this.categories = JSON.parse(localStorage.getItem('admin_categories')) || [];
+        this.sales = JSON.parse(localStorage.getItem('admin_sales')) || [];
     }
 
     /**
-     * Obtener categorías desde la API
+     * Guardar datos en localStorage
      */
-    async fetchCategories() {
-        try {
-            this.categories = await this.apiRequest('categorias.php');
-        } catch (error) {
-            console.error('Error al obtener categorías:', error);
-            this.categories = [];
-        }
-    }
-
-    /**
-     * Obtener productos desde la API
-     */
-    async fetchProducts() {
-        try {
-            this.products = await this.apiRequest('productos.php');
-        } catch (error) {
-            console.error('Error al obtener productos:', error);
-            this.products = [];
-        }
-    }
-
-    /**
-     * Obtener ventas desde la API
-     */
-    async fetchSales() {
-        try {
-            this.sales = await this.apiRequest('ventas.php');
-        } catch (error) {
-            console.error('Error al obtener ventas:', error);
-            this.sales = [];
-        }
-    }
-
-    /**
-     * Obtener clientes desde la API
-     */
-    async fetchCustomers() {
-        try {
-            this.customers = await this.apiRequest('clientes.php');
-        } catch (error) {
-            console.error('Error al obtener clientes:', error);
-            this.customers = [];
-        }
+    saveData() {
+        localStorage.setItem('admin_products', JSON.stringify(this.products));
+        localStorage.setItem('admin_categories', JSON.stringify(this.categories));
+        localStorage.setItem('admin_sales', JSON.stringify(this.sales));
     }
 
     /**
@@ -216,9 +163,6 @@ class AdminManager {
             case 'sales':
                 this.loadSales();
                 break;
-            case 'customers':
-                this.loadCustomers();
-                break;
         }
     }
 
@@ -233,91 +177,6 @@ class AdminManager {
         document.getElementById('total-products').textContent = this.products.length;
         document.getElementById('total-categories').textContent = this.categories.length;
         document.getElementById('total-sales').textContent = this.sales.length;
-        document.getElementById('total-customers').textContent = this.customers.length;
-
-        // Actualizar fecha actual
-        const currentDate = document.getElementById('current-date');
-        if (currentDate) {
-            currentDate.textContent = new Date().toLocaleDateString('es-MX');
-        }
-
-        // Cargar actividad reciente
-        this.loadRecentActivity();
-        
-        // Cargar productos con bajo stock
-        this.loadLowStockProducts();
-    }
-
-    /**
-     * Cargar actividad reciente
-     */
-    loadRecentActivity() {
-        const container = document.getElementById('recent-activity');
-        if (!container) return;
-
-        // Obtener últimas 5 ventas
-        const recentSales = this.sales.slice(0, 5);
-        
-        if (recentSales.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>No hay actividad reciente</p></div>';
-            return;
-        }
-
-        container.innerHTML = recentSales.map(sale => `
-            <div class="activity-item">
-                <div class="activity-icon success">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <div class="activity-details">
-                    <div class="activity-title">Nueva ${sale.status}: ${sale.customer}</div>
-                    <div class="activity-time">${new Date(sale.date).toLocaleDateString()}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    /**
-     * Cargar productos con bajo stock
-     */
-    loadLowStockProducts() {
-        const container = document.getElementById('low-stock-products');
-        if (!container) return;
-
-        const lowStockProducts = this.products.filter(p => p.stock <= 5);
-        
-        if (lowStockProducts.length === 0) {
-            container.innerHTML = '<p style="color: var(--success);">✅ Todos los productos tienen stock suficiente</p>';
-            return;
-        }
-
-        container.innerHTML = `
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Stock Actual</th>
-                            <th>Stock Mínimo</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${lowStockProducts.map(product => `
-                            <tr>
-                                <td>${product.name}</td>
-                                <td><span class="badge badge-warning">${product.stock}</span></td>
-                                <td>${product.min_stock || 5}</td>
-                                <td>
-                                    <span class="badge ${product.stock === 0 ? 'badge-danger' : 'badge-warning'}">
-                                        ${product.stock === 0 ? 'Sin Stock' : 'Stock Bajo'}
-                                    </span>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
     }
 
     // ===========================================
@@ -344,7 +203,6 @@ class AdminManager {
      */
     renderProducts() {
         const tbody = document.getElementById('products-table');
-        const countElement = document.getElementById('products-count');
         if (!tbody) return;
 
         const searchInput = document.getElementById('products-search');
@@ -357,16 +215,10 @@ class AdminManager {
             const matchesSearch = !searchTerm || 
                 product.name.toLowerCase().includes(searchTerm) ||
                 product.sku.toLowerCase().includes(searchTerm) ||
-                (product.part_number && product.part_number.toLowerCase().includes(searchTerm)) ||
-                (product.brand && product.brand.toLowerCase().includes(searchTerm));
+                (product.part_number && product.part_number.toLowerCase().includes(searchTerm));
             const matchesCategory = !categoryFilterValue || product.category_id == categoryFilterValue;
             return matchesSearch && matchesCategory;
         });
-
-        // Actualizar contador
-        if (countElement) {
-            countElement.textContent = `${filteredProducts.length} productos`;
-        }
 
         if (filteredProducts.length === 0) {
             tbody.innerHTML = `
@@ -382,29 +234,16 @@ class AdminManager {
 
         tbody.innerHTML = filteredProducts.map(product => {
             const category = this.categories.find(c => c.id === product.category_id);
-            const stockStatus = product.stock === 0 ? 'Sin Stock' : 
-                               product.stock <= 5 ? 'Stock Bajo' : 'En Stock';
-            const statusClass = product.stock === 0 ? 'badge-danger' : 
-                               product.stock <= 5 ? 'badge-warning' : 'badge-success';
-            
             return `
                 <tr>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="${product.icon}" style="color: var(--primary-blue);"></i>
-                            <div>
-                                <strong>${product.name}</strong>
-                                ${product.brand ? `<br><small style="color: var(--gray-500);">${product.brand}</small>` : ''}
-                            </div>
-                        </div>
+                        <div><strong>${product.name}</strong></div>
+                        <small style="color: var(--gray-500);">${product.brand || ''}</small>
                     </td>
                     <td>${category ? category.name : 'Sin categoría'}</td>
+                    <td>$${product.price.toLocaleString()}</td>
                     <td><code>${product.sku}</code></td>
-                    <td>
-                        <span class="badge ${statusClass}">${stockStatus}</span>
-                        <small style="display: block; color: var(--gray-500);">${product.stock} unidades</small>
-                    </td>
-                    <td><span class="badge badge-success">${product.status}</span></td>
+                    <td><span class="badge badge-success">Activo</span></td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="adminManager.editProduct(${product.id})">
                             <i class="fas fa-edit"></i>
@@ -460,47 +299,41 @@ class AdminManager {
     /**
      * Guardar producto
      */
-    async saveProduct() {
-        try {
-            const id = document.getElementById('product-id').value;
-            const productData = {
-                name: document.getElementById('product-name').value,
-                category_id: parseInt(document.getElementById('product-category').value),
-                brand: document.getElementById('product-brand').value,
-                sku: document.getElementById('product-sku').value,
-                part_number: document.getElementById('product-part-number').value,
-                price: parseFloat(document.getElementById('product-price').value),
-                description: document.getElementById('product-description').value,
-                icon: document.getElementById('product-icon').value || 'fas fa-cube'
-            };
+    saveProduct() {
+        const id = document.getElementById('product-id').value;
+        const productData = {
+            name: document.getElementById('product-name').value,
+            category_id: parseInt(document.getElementById('product-category').value),
+            brand: document.getElementById('product-brand').value,
+            sku: document.getElementById('product-sku').value,
+            part_number: document.getElementById('product-part-number').value,
+            price: parseFloat(document.getElementById('product-price').value),
+            description: document.getElementById('product-description').value,
+            icon: document.getElementById('product-icon').value || 'fas fa-cube'
+        };
 
-            // Validación básica
-            if (!productData.name || !productData.category_id || !productData.sku || !productData.price) {
-                this.showToast('Por favor completa todos los campos requeridos.', 'error');
-                return;
-            }
-
-            let result;
-            if (id) {
-                // Editar producto existente
-                productData.id = parseInt(id);
-                result = await this.apiRequest('productos.php', 'PUT', productData);
-            } else {
-                // Crear nuevo producto
-                result = await this.apiRequest('productos.php', 'POST', productData);
-            }
-
-            if (result.success) {
-                this.showToast('Producto guardado exitosamente', 'success');
-                this.closeModal('product-modal');
-                await this.fetchProducts();
-                this.renderProducts();
-                this.loadDashboard();
-            }
-        } catch (error) {
-            console.error('Error al guardar producto:', error);
-            this.showToast('Error al guardar el producto: ' + error.message, 'error');
+        // Validación básica
+        if (!productData.name || !productData.category_id || !productData.sku || !productData.price) {
+            alert('Por favor completa todos los campos requeridos.');
+            return;
         }
+
+        if (id) {
+            // Editar producto existente
+            const index = this.products.findIndex(p => p.id == id);
+            if (index !== -1) {
+                this.products[index] = { ...this.products[index], ...productData };
+            }
+        } else {
+            // Crear nuevo producto
+            productData.id = Date.now();
+            this.products.push(productData);
+        }
+
+        this.saveData();
+        this.closeModal('product-modal');
+        this.renderProducts();
+        this.loadDashboard();
     }
 
     /**
@@ -513,23 +346,12 @@ class AdminManager {
     /**
      * Eliminar producto
      */
-    async deleteProduct(id) {
-        if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-            return;
-        }
-
-        try {
-            const result = await this.apiRequest('productos.php', 'DELETE', { id });
-            
-            if (result.success) {
-                this.showToast('Producto eliminado exitosamente', 'success');
-                await this.fetchProducts();
-                this.renderProducts();
-                this.loadDashboard();
-            }
-        } catch (error) {
-            console.error('Error al eliminar producto:', error);
-            this.showToast('Error al eliminar el producto: ' + error.message, 'error');
+    deleteProduct(id) {
+        if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+            this.products = this.products.filter(p => p.id !== id);
+            this.saveData();
+            this.renderProducts();
+            this.loadDashboard();
         }
     }
 
@@ -552,6 +374,7 @@ class AdminManager {
         if (!tbody) return;
         
         tbody.innerHTML = this.categories.map(category => {
+            const productCount = this.products.filter(p => p.category_id === category.id).length;
             return `
                 <tr>
                     <td>
@@ -560,8 +383,8 @@ class AdminManager {
                             <strong>${category.name}</strong>
                         </div>
                     </td>
-                    <td>${category.description || ''}</td>
-                    <td>${category.products_count || 0} productos</td>
+                    <td>${category.description}</td>
+                    <td>${productCount} productos</td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="adminManager.editCategory(${category.id})">
                             <i class="fas fa-edit"></i>
@@ -588,7 +411,7 @@ class AdminManager {
                 document.getElementById('category-modal-title').textContent = 'Editar Categoría';
                 document.getElementById('category-id').value = category.id;
                 document.getElementById('category-name').value = category.name;
-                document.getElementById('category-description').value = category.description || '';
+                document.getElementById('category-description').value = category.description;
                 document.getElementById('category-icon').value = category.icon;
             }
         } else {
@@ -605,40 +428,34 @@ class AdminManager {
     /**
      * Guardar categoría
      */
-    async saveCategory() {
-        try {
-            const id = document.getElementById('category-id').value;
-            const categoryData = {
-                name: document.getElementById('category-name').value,
-                description: document.getElementById('category-description').value,
-                icon: document.getElementById('category-icon').value || 'fas fa-tag'
-            };
+    saveCategory() {
+        const id = document.getElementById('category-id').value;
+        const categoryData = {
+            name: document.getElementById('category-name').value,
+            description: document.getElementById('category-description').value,
+            icon: document.getElementById('category-icon').value || 'fas fa-tag'
+        };
 
-            // Validación básica
-            if (!categoryData.name) {
-                this.showToast('Por favor ingresa el nombre de la categoría.', 'error');
-                return;
-            }
-
-            let result;
-            if (id) {
-                categoryData.id = parseInt(id);
-                result = await this.apiRequest('categorias.php', 'PUT', categoryData);
-            } else {
-                result = await this.apiRequest('categorias.php', 'POST', categoryData);
-            }
-
-            if (result.success) {
-                this.showToast('Categoría guardada exitosamente', 'success');
-                this.closeModal('category-modal');
-                await this.fetchCategories();
-                this.renderCategories();
-                this.loadDashboard();
-            }
-        } catch (error) {
-            console.error('Error al guardar categoría:', error);
-            this.showToast('Error al guardar la categoría: ' + error.message, 'error');
+        // Validación básica
+        if (!categoryData.name) {
+            alert('Por favor ingresa el nombre de la categoría.');
+            return;
         }
+
+        if (id) {
+            const index = this.categories.findIndex(c => c.id == id);
+            if (index !== -1) {
+                this.categories[index] = { ...this.categories[index], ...categoryData };
+            }
+        } else {
+            categoryData.id = Date.now();
+            this.categories.push(categoryData);
+        }
+
+        this.saveData();
+        this.closeModal('category-modal');
+        this.renderCategories();
+        this.loadDashboard();
     }
 
     /**
@@ -651,23 +468,18 @@ class AdminManager {
     /**
      * Eliminar categoría
      */
-    async deleteCategory(id) {
-        if (!confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+    deleteCategory(id) {
+        const productCount = this.products.filter(p => p.category_id === id).length;
+        if (productCount > 0) {
+            alert('No se puede eliminar esta categoría porque tiene productos asociados.');
             return;
         }
-
-        try {
-            const result = await this.apiRequest('categorias.php', 'DELETE', { id });
-            
-            if (result.success) {
-                this.showToast('Categoría eliminada exitosamente', 'success');
-                await this.fetchCategories();
-                this.renderCategories();
-                this.loadDashboard();
-            }
-        } catch (error) {
-            console.error('Error al eliminar categoría:', error);
-            this.showToast('Error al eliminar la categoría: ' + error.message, 'error');
+        
+        if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+            this.categories = this.categories.filter(c => c.id !== id);
+            this.saveData();
+            this.renderCategories();
+            this.loadDashboard();
         }
     }
 
@@ -692,7 +504,7 @@ class AdminManager {
         if (this.sales.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="empty-state">
+                    <td colspan="7" class="empty-state">
                         <i class="fas fa-shopping-cart"></i>
                         <div>No hay ventas registradas</div>
                     </td>
@@ -702,24 +514,20 @@ class AdminManager {
         }
 
         tbody.innerHTML = this.sales.map(sale => {
-            const statusClass = sale.status === 'vendido' || sale.status === 'entregado' ? 'badge-success' : 
-                              sale.status === 'cancelado' ? 'badge-danger' : 'badge-warning';
-            
-            const productsList = sale.products && sale.products.length > 0 ? 
-                sale.products.map(p => p.product_name).join(', ') : 
-                'Sin productos';
+            const product = this.products.find(p => p.id === sale.product_id);
+            const statusClass = sale.status === 'vendido' ? 'badge-success' : 
+                              sale.status === 'entregado' ? 'badge-success' : 'badge-warning';
             
             return `
                 <tr>
-                    <td>${new Date(sale.date).toLocaleDateString('es-MX')}</td>
+                    <td>${new Date(sale.date).toLocaleDateString()}</td>
                     <td>
                         <div><strong>${sale.customer}</strong></div>
                         <small style="color: var(--gray-500);">${sale.phone || ''}</small>
                     </td>
-                    <td>
-                        <small>${productsList}</small>
-                    </td>
-                    <td>$${sale.total.toLocaleString('es-MX')}</td>
+                    <td>${product ? product.name : 'Producto eliminado'}</td>
+                    <td>${sale.quantity}</td>
+                    <td>$${(sale.price * sale.quantity).toLocaleString()}</td>
                     <td><span class="badge ${statusClass}">${sale.status}</span></td>
                     <td>
                         <button class="btn btn-sm btn-secondary" onclick="adminManager.editSale(${sale.id})">
@@ -752,11 +560,9 @@ class AdminManager {
             if (sale) {
                 document.getElementById('sale-customer').value = sale.customer;
                 document.getElementById('sale-phone').value = sale.phone || '';
-                if (sale.products && sale.products.length > 0) {
-                    document.getElementById('sale-product').value = sale.products[0].product_id;
-                    document.getElementById('sale-quantity').value = sale.products[0].quantity;
-                    document.getElementById('sale-price').value = sale.products[0].unit_price;
-                }
+                document.getElementById('sale-product').value = sale.product_id;
+                document.getElementById('sale-quantity').value = sale.quantity;
+                document.getElementById('sale-price').value = sale.price;
                 document.getElementById('sale-status').value = sale.status;
                 document.getElementById('sale-notes').value = sale.notes || '';
             }
@@ -774,37 +580,31 @@ class AdminManager {
     /**
      * Guardar venta
      */
-    async saveSale() {
-        try {
-            const saleData = {
-                customer: document.getElementById('sale-customer').value,
-                phone: document.getElementById('sale-phone').value,
-                product_id: parseInt(document.getElementById('sale-product').value),
-                quantity: parseInt(document.getElementById('sale-quantity').value),
-                price: parseFloat(document.getElementById('sale-price').value),
-                status: document.getElementById('sale-status').value,
-                notes: document.getElementById('sale-notes').value
-            };
+    saveSale() {
+        const saleData = {
+            customer: document.getElementById('sale-customer').value,
+            phone: document.getElementById('sale-phone').value,
+            product_id: parseInt(document.getElementById('sale-product').value),
+            quantity: parseInt(document.getElementById('sale-quantity').value),
+            price: parseFloat(document.getElementById('sale-price').value),
+            status: document.getElementById('sale-status').value,
+            notes: document.getElementById('sale-notes').value,
+            date: new Date().toISOString()
+        };
 
-            // Validación básica
-            if (!saleData.customer || !saleData.product_id || !saleData.quantity || !saleData.price) {
-                this.showToast('Por favor completa todos los campos requeridos.', 'error');
-                return;
-            }
-
-            const result = await this.apiRequest('ventas.php', 'POST', saleData);
-
-            if (result.success) {
-                this.showToast('Venta registrada exitosamente', 'success');
-                this.closeModal('sale-modal');
-                await this.fetchSales();
-                this.renderSales();
-                this.loadDashboard();
-            }
-        } catch (error) {
-            console.error('Error al guardar venta:', error);
-            this.showToast('Error al registrar la venta: ' + error.message, 'error');
+        // Validación básica
+        if (!saleData.customer || !saleData.product_id || !saleData.quantity || !saleData.price) {
+            alert('Por favor completa todos los campos requeridos.');
+            return;
         }
+
+        saleData.id = Date.now();
+        this.sales.push(saleData);
+
+        this.saveData();
+        this.closeModal('sale-modal');
+        this.renderSales();
+        this.loadDashboard();
     }
 
     /**
@@ -817,79 +617,26 @@ class AdminManager {
     /**
      * Eliminar venta
      */
-    async deleteSale(id) {
-        if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
-            return;
-        }
-
-        try {
-            const result = await this.apiRequest('ventas.php', 'DELETE', { id });
-            
-            if (result.success) {
-                this.showToast('Venta eliminada exitosamente', 'success');
-                await this.fetchSales();
-                this.renderSales();
-                this.loadDashboard();
-            }
-        } catch (error) {
-            console.error('Error al eliminar venta:', error);
-            this.showToast('Error al eliminar la venta: ' + error.message, 'error');
+    deleteSale(id) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
+            this.sales = this.sales.filter(s => s.id !== id);
+            this.saveData();
+            this.renderSales();
+            this.loadDashboard();
         }
     }
 
     // ===========================================
-    // GESTIÓN DE CLIENTES
+    // CONFIGURACIÓN
     // ===========================================
 
     /**
-     * Cargar página de clientes
+     * Guardar configuración de la empresa
      */
-    loadCustomers() {
-        this.renderCustomers();
-    }
-
-    /**
-     * Renderizar lista de clientes
-     */
-    renderCustomers() {
-        const tbody = document.getElementById('customers-table');
-        if (!tbody) return;
-        
-        if (this.customers.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="empty-state">
-                        <i class="fas fa-users"></i>
-                        <div>No hay clientes registrados</div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = this.customers.map(customer => {
-            const lastPurchase = customer.last_purchase ? 
-                new Date(customer.last_purchase).toLocaleDateString('es-MX') : 
-                'Sin compras';
-            
-            return `
-                <tr>
-                    <td><strong>${customer.name}</strong></td>
-                    <td>${customer.email || '-'}</td>
-                    <td>${customer.phone || '-'}</td>
-                    <td>${customer.total_purchases}</td>
-                    <td>${lastPurchase}</td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary" onclick="adminManager.editCustomer(${customer.id})">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="adminManager.deleteCustomer(${customer.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+    saveCompanySettings() {
+        // Aquí se implementaría la lógica para guardar la configuración
+        // Por ahora solo mostramos una confirmación
+        alert('Configuración guardada exitosamente');
     }
 
     // ===========================================
@@ -907,124 +654,51 @@ class AdminManager {
     }
 
     /**
-     * Mostrar notificación toast
+     * Obtener productos para exportación/API
      */
-    showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) return;
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-        `;
-
-        toastContainer.appendChild(toast);
-
-        // Remover toast después de 5 segundos
-        setTimeout(() => {
-            toast.remove();
-        }, 5000);
+    getProducts() {
+        return this.products;
     }
 
     /**
-     * Toggle sidebar en móvil
+     * Obtener categorías para exportación/API
      */
-    toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.toggle('mobile-open');
+    getCategories() {
+        return this.categories;
+    }
+
+    /**
+     * Obtener ventas para exportación/API
+     */
+    getSales() {
+        return this.sales;
+    }
+
+    /**
+     * Importar datos (útil para migraciones)
+     */
+    importData(products = null, categories = null, sales = null) {
+        if (products) this.products = products;
+        if (categories) this.categories = categories;
+        if (sales) this.sales = sales;
+        
+        this.saveData();
+        this.loadPageData(this.currentPage);
+    }
+
+    /**
+     * Limpiar todos los datos
+     */
+    clearAllData() {
+        if (confirm('¿Estás seguro de que quieres eliminar todos los datos? Esta acción no se puede deshacer.')) {
+            this.products = [];
+            this.categories = [];
+            this.sales = [];
+            this.saveData();
+            this.initializeDefaultData();
+            this.loadData();
+            this.loadPageData(this.currentPage);
         }
-    }
-
-    /**
-     * Cerrar sesión
-     */
-    logout() {
-        if (confirm('¿Seguro que quieres cerrar sesión?')) {
-            window.location.href = '../public/index.html';
-        }
-    }
-
-    /**
-     * Importar productos
-     */
-    importProducts() {
-        this.showToast('Función de importación en desarrollo', 'warning');
-    }
-
-    /**
-     * Ajustar inventario
-     */
-    adjustInventory() {
-        this.showToast('Función de ajuste de inventario en desarrollo', 'warning');
-    }
-
-    /**
-     * Abrir modal de cliente
-     */
-    openCustomerModal() {
-        this.showToast('Modal de clientes en desarrollo', 'warning');
-    }
-
-    /**
-     * Exportar datos
-     */
-    async exportData() {
-        try {
-            const data = {
-                products: this.products,
-                categories: this.categories,
-                sales: this.sales,
-                customers: this.customers
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], 
-                { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `prismatech-backup-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            this.showToast('Backup exportado exitosamente', 'success');
-        } catch (error) {
-            this.showToast('Error al exportar datos', 'error');
-        }
-    }
-
-    /**
-     * Generar reporte
-     */
-    generateReport() {
-        this.showToast('Función de reportes en desarrollo', 'warning');
-    }
-
-    /**
-     * Respaldar datos
-     */
-    backupData() {
-        this.exportData();
-    }
-
-    /**
-     * Restaurar datos
-     */
-    restoreData() {
-        this.showToast('Función de restauración en desarrollo', 'warning');
-    }
-
-    /**
-     * Resetear datos
-     */
-    resetData() {
-        this.showToast('Función de reset en desarrollo', 'warning');
-    }
-
-    /**
-     * Guardar configuración de la empresa
-     */
-    saveCompanySettings() {
-        this.showToast('Configuración guardada exitosamente', 'success');
     }
 }
 

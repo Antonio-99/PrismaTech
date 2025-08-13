@@ -18,7 +18,7 @@
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-page="dashboard">
                     <i class="fas fa-chart-line"></i>
-                    Dashboard
+                    
                 </a>
                 <a href="#" class="nav-item" data-page="products">
                     <i class="fas fa-box"></i>
@@ -96,7 +96,7 @@
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
                         <div class="stat-content">
-                            <div class="stat-value" id="total-sales">0</div>
+                            <div class="stat-value" id="total-quotes">0</div>
                             <div class="stat-label">Cotizaciones</div>
                         </div>
                     </div>
@@ -515,240 +515,10 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Scripts -->
-     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/admin-data.js"></script>
     <script src="js/admin-ui.js"></script>
     <script src="js/admin-manager.js"></script>
-
-    <!-- Modales que faltan en admin/index.html -->
-
-<!-- Product Modal -->
-<div class="modal-overlay" id="product-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="product-modal-title">Nuevo Producto</h3>
-            <button class="modal-close" onclick="adminManager.closeModal('product-modal')">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <form id="product-form" onsubmit="event.preventDefault(); adminManager.saveProduct();">
-            <input type="hidden" id="product-id">
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Nombre del Producto *</label>
-                    <input type="text" class="form-control" id="product-name" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Categoría *</label>
-                    <select class="form-control" id="product-category" required>
-                        <option value="">Seleccionar categoría</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Marca</label>
-                    <input type="text" class="form-control" id="product-brand">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">SKU *</label>
-                    <input type="text" class="form-control" id="product-sku" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Número de Parte</label>
-                    <input type="text" class="form-control" id="product-part-number">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Precio *</label>
-                    <input type="number" class="form-control" id="product-price" step="0.01" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" id="product-description" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Icono FontAwesome</label>
-                <input type="text" class="form-control" id="product-icon" placeholder="fas fa-cube">
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('product-modal')">
-                    Cancelar
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Guardar Producto
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Category Modal -->
-<div class="modal-overlay" id="category-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="category-modal-title">Nueva Categoría</h3>
-            <button class="modal-close" onclick="adminManager.closeModal('category-modal')">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <form id="category-form" onsubmit="event.preventDefault(); adminManager.saveCategory();">
-            <input type="hidden" id="category-id">
-            <div class="form-group">
-                <label class="form-label">Nombre de la Categoría *</label>
-                <input type="text" class="form-control" id="category-name" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" id="category-description" rows="2"></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Icono FontAwesome</label>
-                <input type="text" class="form-control" id="category-icon" placeholder="fas fa-tag">
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('category-modal')">
-                    Cancelar
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Guardar Categoría
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Sale Modal -->
-<div class="modal-overlay" id="sale-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Nueva Venta/Cotización</h3>
-            <button class="modal-close" onclick="adminManager.closeModal('sale-modal')">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <form id="sale-form" onsubmit="event.preventDefault(); adminManager.saveSale();">
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Nombre del Cliente *</label>
-                    <input type="text" class="form-control" id="sale-customer" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Teléfono</label>
-                    <input type="text" class="form-control" id="sale-phone">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Producto *</label>
-                    <select class="form-control" id="sale-product" required>
-                        <option value="">Seleccionar producto</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Cantidad *</label>
-                    <input type="number" class="form-control" id="sale-quantity" min="1" value="1" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Precio Unitario *</label>
-                    <input type="number" class="form-control" id="sale-price" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Estado</label>
-                    <select class="form-control" id="sale-status">
-                        <option value="cotizacion">Cotización</option>
-                        <option value="vendido">Vendido</option>
-                        <option value="entregado">Entregado</option>
-                        <option value="cancelado">Cancelado</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Notas</label>
-                <textarea class="form-control" id="sale-notes" rows="2"></textarea>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="adminManager.closeModal('sale-modal')">
-                    Cancelar
-                </button>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Guardar Venta
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<style>
-/* Estilos para modales */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal-overlay.active {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--gray-200);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: var(--gray-500);
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
-.modal-close:hover {
-    background: var(--gray-100);
-    color: var(--gray-700);
-}
-
-.modal-content form {
-    padding: 1.5rem;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--gray-200);
-}
-</style>
+    <script src="js/admin-init.js"></script>
 </body>
 </html>
