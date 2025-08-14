@@ -4,8 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrismaTech - Refacciones de Cómputo</title>
+    <meta name="description" content="Especialistas en refacciones de cómputo. Pantallas, teclados, baterías, cargadores y más. Servicio profesional en Teziutlán, Puebla.">
+    <meta name="keywords" content="refacciones, computadoras, laptops, pantallas, teclados, baterías, reparación, Teziutlán, Puebla">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Preconnect para mejorar rendimiento -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 </head>
 <body>
     <!-- Header -->
@@ -41,7 +51,8 @@
                 <input type="text" 
                        class="search-input" 
                        id="search-input"
-                       placeholder="Buscar por nombre, SKU, número de parte...">
+                       placeholder="Buscar por nombre, SKU, número de parte..."
+                       autocomplete="off">
                 <button class="search-btn" onclick="productManager.searchProducts()">
                     <i class="fas fa-search"></i> Buscar
                 </button>
@@ -54,7 +65,11 @@
         <div class="container">
             <h2 class="section-title">Categorías de Productos</h2>
             <div class="categories-grid" id="categories-grid">
-                <!-- Categories will be loaded here -->
+                <!-- Categories will be loaded here by ProductManager -->
+                <div class="loading" style="grid-column: 1 / -1;">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando categorías...</p>
+                </div>
             </div>
         </div>
     </section>
@@ -65,19 +80,22 @@
             <div class="products-header">
                 <h2 class="section-title" style="margin: 0;">Productos Disponibles</h2>
                 <div class="products-filters">
-                    <select class="filter-select" id="category-filter" onchange="productManager.filterProducts()">
+                    <select class="filter-select" id="category-filter" onchange="productManager.searchProducts()">
                         <option value="">Todas las categorías</option>
                     </select>
-                    <select class="filter-select" id="brand-filter" onchange="productManager.filterProducts()">
+                    <select class="filter-select" id="brand-filter" onchange="productManager.searchProducts()">
                         <option value="">Todas las marcas</option>
                     </select>
+                    <button class="btn btn-secondary" onclick="productManager.refresh()" title="Actualizar datos">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
             </div>
             
             <div class="products-grid" id="products-grid">
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <p>Cargando productos...</p>
+                    <p>Cargando productos desde la base de datos...</p>
                 </div>
             </div>
         </div>
@@ -88,43 +106,152 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
+    <!-- Admin Link (solo visible en desarrollo) -->
+    <a href="../admin/index.html" class="admin-link" title="Panel de Administración">
+        <i class="fas fa-cog"></i> Admin
+    </a>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>PrismaTech</h3>
-                    <p>Especialistas en refacciones de cómputo. Más de 10 años de experiencia brindando soluciones tecnológicas.</p>
+                    <h3><i class="fas fa-laptop"></i> PrismaTech</h3>
+                    <p>Especialistas en refacciones de cómputo con más de 10 años de experiencia. Ofrecemos productos de calidad y servicio profesional para mantener tus equipos funcionando al máximo rendimiento.</p>
+                    <div style="margin-top: 1rem;">
+                        <span style="background: var(--success); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">
+                            <i class="fas fa-circle" style="font-size: 6px; margin-right: 5px;"></i>
+                            En línea
+                        </span>
+                    </div>
                 </div>
+                
                 <div class="footer-section">
-                    <h3>Contacto</h3>
-                    <p><i class="fas fa-phone"></i> (238) 123-4567</p>
-                    <p><i class="fas fa-envelope"></i> info@prismatech.mx</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Teziutlán, Puebla, México</p>
+                    <h3><i class="fas fa-phone"></i> Contacto</h3>
+                    <p><i class="fas fa-phone" style="width: 16px;"></i> (238) 123-4567</p>
+                    <p><i class="fab fa-whatsapp" style="width: 16px; color: #25D366;"></i> WhatsApp: (238) 123-4567</p>
+                    <p><i class="fas fa-envelope" style="width: 16px;"></i> info@prismatech.mx</p>
+                    <p><i class="fas fa-map-marker-alt" style="width: 16px;"></i> Teziutlán, Puebla, México</p>
                 </div>
+                
                 <div class="footer-section">
-                    <h3>Horarios</h3>
-                    <p>Lunes a Viernes: 9:00 AM - 7:00 PM</p>
-                    <p>Sábados: 9:00 AM - 5:00 PM</p>
-                    <p>Domingos: Cerrado</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Síguenos</h3>
-                    <p>
-                        <a href="#"><i class="fab fa-facebook"></i> Facebook</a><br>
-                        <a href="#"><i class="fab fa-instagram"></i> Instagram</a><br>
-                        <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <h3><i class="fas fa-clock"></i> Horarios de Servicio</h3>
+                    <p><strong>Lunes a Viernes:</strong><br>9:00 AM - 7:00 PM</p>
+                    <p><strong>Sábados:</strong><br>9:00 AM - 5:00 PM</p>
+                    <p><strong>Domingos:</strong><br>Cerrado</p>
+                    <p style="margin-top: 1rem; color: var(--success);">
+                        <i class="fas fa-shipping-fast"></i> Entregas el mismo día
                     </p>
                 </div>
+                
+                <div class="footer-section">
+                    <h3><i class="fas fa-tags"></i> Nuestros Servicios</h3>
+                    <p>✓ Venta de refacciones originales</p>
+                    <p>✓ Reparación de laptops y PCs</p>
+                    <p>✓ Diagnóstico gratuito</p>
+                    <p>✓ Instalación profesional</p>
+                    <p>✓ Garantía en productos y servicios</p>
+                    <p>✓ Soporte técnico especializado</p>
+                </div>
             </div>
+            
             <div class="footer-bottom">
-                <p>&copy; 2025 PrismaTech. Todos los derechos reservados.</p>
+                <p>&copy; 2025 PrismaTech. Todos los derechos reservados. | Desarrollado con ❤️ en Puebla, México</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">
+                    <i class="fas fa-shield-alt"></i> Pagos seguros | 
+                    <i class="fas fa-truck"></i> Envíos a toda la región | 
+                    <i class="fas fa-medal"></i> Garantía extendida disponible
+                </p>
             </div>
         </div>
     </footer>
 
-    <script src="js/data-store.js"></script>
+    <!-- Scripts -->
     <script src="js/product-manager.js"></script>
     <script src="js/main.js"></script>
+    
+    <!-- Script para mejorar la experiencia de usuario -->
+    <script>
+        // Detectar si es la primera visita
+        if (!localStorage.getItem('prismaTechVisited')) {
+            localStorage.setItem('prismaTechVisited', 'true');
+            
+            // Mostrar mensaje de bienvenida después de cargar
+            setTimeout(() => {
+                if (window.appUtils) {
+                    window.appUtils.showTemporaryMessage('¡Bienvenido a PrismaTech! 👋', 'success');
+                }
+            }, 2000);
+        }
+        
+        // Configurar análisis básico de uso
+        let searchCount = parseInt(localStorage.getItem('searchCount') || '0');
+        document.getElementById('search-input').addEventListener('input', () => {
+            searchCount++;
+            localStorage.setItem('searchCount', searchCount.toString());
+        });
+        
+        // Precargar recursos importantes
+        const preloadWhatsApp = () => {
+            const link = document.createElement('link');
+            link.rel = 'dns-prefetch';
+            link.href = 'https://wa.me';
+            document.head.appendChild(link);
+        };
+        
+        // Ejecutar después de que la página esté completamente cargada
+        window.addEventListener('load', preloadWhatsApp);
+        
+        // Manejar errores de carga de imágenes o recursos
+        window.addEventListener('error', (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.target.style.display = 'none';
+            }
+        });
+        
+        // Configurar lazy loading para imágenes cuando las agregemos
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    </script>
+    
+    <!-- Schema.org JSON-LD para SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "PrismaTech",
+        "description": "Especialistas en refacciones de cómputo",
+        "url": "https://www.prismatech.mx",
+        "telephone": "+52-238-123-4567",
+        "email": "info@prismatech.mx",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Teziutlán",
+            "addressRegion": "Puebla",
+            "addressCountry": "MX"
+        },
+        "openingHours": [
+            "Mo-Fr 09:00-19:00",
+            "Sa 09:00-17:00"
+        ],
+        "priceRange": "$$",
+        "paymentAccepted": "Cash, Credit Card, Bank Transfer",
+        "currenciesAccepted": "MXN"
+    }
+    </script>
 </body>
 </html>
