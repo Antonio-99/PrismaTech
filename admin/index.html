@@ -18,7 +18,7 @@
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-page="dashboard">
                     <i class="fas fa-chart-line"></i>
-                    Dashboard
+                    
                 </a>
                 <a href="#" class="nav-item" data-page="products">
                     <i class="fas fa-box"></i>
@@ -48,7 +48,7 @@
                     <i class="fas fa-cog"></i>
                     Configuración
                 </a>
-                <a href="../public/index.html" class="nav-item">
+                <a href="../index.html" class="nav-item">
                     <i class="fas fa-globe"></i>
                     Ver Sitio Web
                 </a>
@@ -131,15 +131,7 @@
                     <div class="card">
                         <h3>Actividad Reciente</h3>
                         <div id="recent-activity" class="activity-list">
-                            <div class="activity-item">
-                                <div class="activity-icon success">
-                                    <i class="fas fa-plus"></i>
-                                </div>
-                                <div class="activity-details">
-                                    <div class="activity-title">Sistema inicializado</div>
-                                    <div class="activity-time">Hace unos momentos</div>
-                                </div>
-                            </div>
+                            <!-- Activity items will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -147,7 +139,7 @@
                 <div class="card">
                     <h3>Productos con Bajo Stock</h3>
                     <div id="low-stock-products">
-                        <p class="text-muted">No hay productos con stock bajo</p>
+                        <!-- Low stock items will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -202,12 +194,7 @@
                                 </tr>
                             </thead>
                             <tbody id="products-table">
-                                <tr>
-                                    <td colspan="6" class="loading">
-                                        <div class="loading-spinner"></div>
-                                        <p>Cargando productos...</p>
-                                    </td>
-                                </tr>
+                                <!-- Products will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -240,12 +227,7 @@
                                 </tr>
                             </thead>
                             <tbody id="categories-table">
-                                <tr>
-                                    <td colspan="4" class="loading">
-                                        <div class="loading-spinner"></div>
-                                        <p>Cargando categorías...</p>
-                                    </td>
-                                </tr>
+                                <!-- Categories will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -294,12 +276,7 @@
                                 </tr>
                             </thead>
                             <tbody id="inventory-table">
-                                <tr>
-                                    <td colspan="7" class="loading">
-                                        <div class="loading-spinner"></div>
-                                        <p>Cargando inventario...</p>
-                                    </td>
-                                </tr>
+                                <!-- Inventory will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -350,12 +327,7 @@
                                 </tr>
                             </thead>
                             <tbody id="sales-table">
-                                <tr>
-                                    <td colspan="6" class="loading">
-                                        <div class="loading-spinner"></div>
-                                        <p>Cargando ventas...</p>
-                                    </td>
-                                </tr>
+                                <!-- Sales will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -397,12 +369,7 @@
                                 </tr>
                             </thead>
                             <tbody id="customers-table">
-                                <tr>
-                                    <td colspan="6" class="loading">
-                                        <div class="loading-spinner"></div>
-                                        <p>Cargando clientes...</p>
-                                    </td>
-                                </tr>
+                                <!-- Customers will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -428,13 +395,13 @@
                     <div class="card">
                         <h3>Productos Más Vendidos</h3>
                         <div id="top-products">
-                            <p class="text-muted">Datos de reportes próximamente</p>
+                            <!-- Top products will be loaded here -->
                         </div>
                     </div>
                     <div class="card">
                         <h3>Resumen Financiero</h3>
                         <div id="financial-summary">
-                            <p class="text-muted">Resumen financiero próximamente</p>
+                            <!-- Financial summary will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -541,7 +508,7 @@
         </main>
     </div>
 
-    <!-- Modals Container -->
+    <!-- Modals -->
     <div id="modals-container"></div>
 
     <!-- Toast Notifications -->
@@ -549,6 +516,9 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/admin-data.js"></script>
+    <script src="js/admin-ui.js"></script>
     <script src="js/admin-manager.js"></script>
+    <script src="js/admin-init.js"></script>
 </body>
 </html>
